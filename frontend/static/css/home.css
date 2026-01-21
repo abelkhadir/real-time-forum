@@ -1,0 +1,11 @@
+:root {
+    --color-link: #222;
+}
+h1 {
+    font-family: "Inter Tight", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    color: var(--color-link);
+}
+
