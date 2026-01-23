@@ -1,40 +1,148 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>MINDMARKET</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum & Chat</title>
     <link rel="stylesheet" href="/static/css/home.css">
+    <link rel="stylesheet" href="/static/css/shared.css">
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
 </head>
 
 <body>
-    <header class="topbar">
-        <h2>MM</h2>
-        
-        <a href="/chat">Chat</a>
+    <header>
+        <div class="logo">FORUM.</div>
 
-        <input type="search" placeholder="Search…" />
-
-
-        <strong data-action="notifications">Notifications</strong>
-
-
-        <div class="auth-btns">
-            <strong data-action="login">Log in</strong>
-            <strong data-action="signup">Sign up</strong>
+        <div class="auth-bnts">
+            <button class="btn btn-primary">Log in</button>
+            <button class="btn btn-primary">Sign in</button>
+            <!--
+            <button class="btn btn-primary">Log Out</button>
+             -->
         </div>
-
     </header>
 
-    <main class="hero">
-        <h1>MINDMARKET</h1>
-    </main>
+    <div class="container">
+
+        <main class="main-content">
+
+            <div id="feed-view">
+                <div
+                    style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+
+                    <div style="display: flex; gap: 10px;">
+                        <div class="avatar">
+                            <img id="avatar" src="/static/images/avatar-white.png">
+                        </div>
+                        <div class="post-box">
+                            <input id="titleCreationArea" type="text" placeholder="Choose a title for your post..">
+
+                            <textarea id="postCreationArea" placeholder="What's on your mind?"></textarea>
+
+                            <div class="category-row">
+                                <button class="cat active" data-cat="general">General</button>
+                                <button class="cat" data-cat="news">News</button>
+                                <button class="cat" data-cat="tech">Tech</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="posts-container"></div>
+
+            </div>
+
+            <div id="post-view" class="post-detail-view hidden">
+  <div id="post-detail-container"></div>
+</div>
+
+
+        </main>
+
+        <aside class="sidebar" id="right-sidebar">
+
+            <div id="friends-list">
+                <div class="sidebar-header">Contacts</div>
+
+                <div class="friend-item" onclick="openChat('Mehdi Admin')">
+                    <div class="avatar"></div>
+                    <span>Mehdi Admin</span>
+                    <div class="online-dot"></div>
+                </div>
+
+                <div class="friend-item" onclick="openChat('Sarah UI')">
+                    <div class="avatar"></div>
+                    <span>Sarah UI</span>
+                    <div class="online-dot"></div>
+                </div>
+
+                <div class="friend-item" onclick="openChat('John Doe')">
+                    <div class="avatar"></div>
+                    <span>John Doe</span>
+                    <div class="online-dot" style="background: #ccc;"></div>
+                </div>
+            </div>
+
+            <div id="chat-conversation" class="chat-window hidden">
+                <div class="chat-header">
+                    <button class="btn btn-back" onclick="closeChat()">←</button>
+                    <div class="avatar" style="width: 30px; height: 30px; margin-right: 10px;"></div>
+                    <span id="chat-username">User Name</span>
+                </div>
+
+                <div class="chat-messages">
+                    <div class="msg msg-in">Salam, cv?</div>
+                    <div class="msg msg-out">Hamdoulah, wnta?</div>
+                    <div class="msg msg-in">Kayn chi jadid f l-projet?</div>
+                </div>
+
+                <div class="chat-input">
+                    <input type="text" placeholder="Aa">
+                    <button class="btn btn-primary">Send</button>
+                </div>
+            </div>
+
+        </aside>
+
+    </div>
+
+    <button id="mobile-chat-btn" onclick="toggleMobileSidebar()">💬</button>
+
+    <div id="toast-container"></div>
+
 
     <script src="/static/js/home.js"></script>
+
+    <script>
+        // --- 2. CHAT LOGIC ---
+
+        function openChat(username) {
+            // Set User Name
+            document.getElementById('chat-username').innerText = username;
+
+            // Switch Sidebar Views
+            document.getElementById('friends-list').classList.add('hidden');
+            document.getElementById('chat-conversation').classList.remove('hidden');
+        }
+
+        function closeChat() {
+            document.getElementById('chat-conversation').classList.add('hidden');
+            document.getElementById('friends-list').classList.remove('hidden');
+        }
+
+        // --- 3. MOBILE LOGIC ---
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('right-sidebar');
+            if (sidebar.style.display === 'flex') {
+                sidebar.style.display = 'none';
+            } else {
+                sidebar.style.display = 'flex';
+                sidebar.classList.add('active');
+            }
+        }
+
+    </script>
 </body>
 
 </html>
