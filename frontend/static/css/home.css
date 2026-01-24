@@ -71,6 +71,11 @@ body {
     border-radius: 50%;
 }
 
+#login-popup {
+    background-color: #000;
+    z-index: 1000;
+}
+
 
 /* === Post Box === */
 

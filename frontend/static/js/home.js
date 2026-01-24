@@ -220,5 +220,110 @@ function renderPostDetail(post) {
   `;
 }
 
+function openLoginPopup() {
+    let div = document.getElementById("login-popup");
+    div.innerHTML = `
+        <div class="popup-overlay" onclick="closePopup()"></div>
+        <div class="popup-content">
+            <button class="btn-close" onclick="closePopup()">✕</button>
+            <h2>Log In</h2>
+            <form id="login-form">
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Password" required>
+                <button type="submit" class="btn btn-primary">Log In</button>
+            </form>
+            <p>Don't have an account? <a onclick="switchToRegister()">Sign in</a></p>
+        </div>
+    `;
+    div.classList.remove("hidden");
+    document.getElementById("login-form").addEventListener("submit", handleLogin);
+}
+
+function openRegisterPopup() {
+    let div = document.getElementById("login-popup");
+    div.innerHTML = `
+        <div class="popup-overlay" onclick="closePopup()"></div>
+        <div class="popup-content">
+            <button class="btn-close" onclick="closePopup()">✕</button>
+            <h2>Sign In</h2>
+            <form id="register-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Password" required>
+                <input type="password" placeholder="Confirm Password" required>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+            <p>Already have an account? <a onclick="switchToLogin()">Log in</a></p>
+        </div>
+    `;
+    div.classList.remove("hidden");
+    document.getElementById("register-form").addEventListener("submit", handleRegister);
+}
+
+function closePopup() {
+    document.getElementById("login-popup").classList.add("hidden");
+}
+
+function switchToLogin() {
+    openLoginPopup();
+}
+
+function switchToRegister() {
+    openRegisterPopup();
+}
+
+function handleLogin(e) {
+    e.preventDefault();
+    const form = e.target;
+    const email = form.querySelector("input[type='email']").value;
+    const password = form.querySelector("input[type='password']").value;
+    
+    fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast("green", "Logged in successfully");
+                closePopup();
+                location.reload();
+            } else {
+                showToast("red", data.error || "Login failed");
+            }
+        })
+        .catch(err => showToast("red", "Network error"));
+}
+
+function handleRegister(e) {
+    e.preventDefault();
+    const form = e.target;
+    const username = form.querySelector("input[type='text']").value;
+    const email = form.querySelector("input[type='email']").value;
+    const password = form.querySelectorAll("input[type='password']")[0].value;
+    const confirmPassword = form.querySelectorAll("input[type='password']")[1].value;
+    
+    if (password !== confirmPassword) {
+        showToast("red", "Passwords do not match");
+        return;
+    }
+    
+    fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password })
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast("green", "Account created successfully");
+                openLoginPopup();
+            } else {
+                showToast("red", data.error || "Registration failed");
+            }
+        })
+        .catch(err => showToast("red", "Network error"));
+}
 
 getPosts(1)

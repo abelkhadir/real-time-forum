@@ -15,8 +15,14 @@
         <div class="logo">FORUM.</div>
 
         <div class="auth-bnts">
-            <button class="btn btn-primary">Log in</button>
-            <button class="btn btn-primary">Sign in</button>
+            <button class="btn btn-primary" onclick="openLoginPopup()">Log in</button>
+
+            <div id="login-popup"></div>
+
+            <button class="btn btn-primary" onclick="openRegisterPopup()">Sign in</button>
+
+            <div id="register-popup" ></div>
+
             <!--
             <button class="btn btn-primary">Log Out</button>
              -->
@@ -54,8 +60,8 @@
             </div>
 
             <div id="post-view" class="post-detail-view hidden">
-  <div id="post-detail-container"></div>
-</div>
+                <div id="post-detail-container"></div>
+            </div>
 
 
         </main>
