@@ -1,18 +1,6 @@
-document.addEventListener("DOMContentLoaded", expandPostCreationArea);
-
-document.addEventListener("click", e => {
-    if (e.target.dataset.action === "login") showLogin();
-    if (e.target.dataset.action === "signup") showSignup();
-});
 
 
-function showLogin() {
-    console.log("dddd")
-}
 
-function showSignup() {
-    console.log("aaaa")
-}
 function expandPostCreationArea() {
     const post = document.getElementById("postCreationArea");
     const title = document.getElementById("titleCreationArea");
@@ -158,32 +146,32 @@ function renderPosts(posts) {
 
 
 async function openPost(id) {
-  try {
-    const res = await fetch(`/api/posts/read?id=${id}`);
-    const data = await res.json();
+    try {
+        const res = await fetch(`/api/posts/read?id=${id}`);
+        const data = await res.json();
 
-    if (!data.success) return showToast("red", "Failed to load post");
+        if (!data.success) return showToast("red", "Failed to load post");
 
-    renderPostDetail(data.post);
+        renderPostDetail(data.post);
 
-    document.getElementById("feed-view").classList.add("hidden");
-    document.getElementById("post-view").classList.remove("hidden");
-  } catch (err) {
-    console.log(err)
-    showToast("red", "Network error");
-  }
+        document.getElementById("feed-view").classList.add("hidden");
+        document.getElementById("post-view").classList.remove("hidden");
+    } catch (err) {
+        console.log(err)
+        showToast("red", "Network error");
+    }
 }
 
 
 function closePost() {
-  document.getElementById("post-view").classList.add("hidden");
-  document.getElementById("feed-view").classList.remove("hidden");
+    document.getElementById("post-view").classList.add("hidden");
+    document.getElementById("feed-view").classList.remove("hidden");
 }
 
 function renderPostDetail(post) {
-  const container = document.getElementById("post-detail-container");
+    const container = document.getElementById("post-detail-container");
 
-  container.innerHTML = `
+    container.innerHTML = `
     <div style="display: flex; align-items: center; margin-bottom: 15px;">
       <button class="btn btn-back" onclick="closePost()">←</button>
       <h3>Post Details</h3>
@@ -232,7 +220,7 @@ function openLoginPopup() {
                 <input type="password" placeholder="Password" required>
                 <button type="submit" class="btn btn-primary">Log In</button>
             </form>
-            <p>Don't have an account? <a onclick="switchToRegister()">Sign in</a></p>
+            <p>Don't have an account? <a onclick="openRegisterPopup()">Sign in</a></p>
         </div>
     `;
     div.classList.remove("hidden");
@@ -253,23 +241,16 @@ function openRegisterPopup() {
                 <input type="password" placeholder="Confirm Password" required>
                 <button type="submit" class="btn btn-primary">Sign In</button>
             </form>
-            <p>Already have an account? <a onclick="switchToLogin()">Log in</a></p>
+            <p>Already have an account? <a onclick="openLoginPopup()">Log in</a></p>
         </div>
     `;
     div.classList.remove("hidden");
     document.getElementById("register-form").addEventListener("submit", handleRegister);
+
 }
 
 function closePopup() {
     document.getElementById("login-popup").classList.add("hidden");
-}
-
-function switchToLogin() {
-    openLoginPopup();
-}
-
-function switchToRegister() {
-    openRegisterPopup();
 }
 
 function handleLogin(e) {
@@ -277,7 +258,7 @@ function handleLogin(e) {
     const form = e.target;
     const email = form.querySelector("input[type='email']").value;
     const password = form.querySelector("input[type='password']").value;
-    
+
     fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -303,12 +284,12 @@ function handleRegister(e) {
     const email = form.querySelector("input[type='email']").value;
     const password = form.querySelectorAll("input[type='password']")[0].value;
     const confirmPassword = form.querySelectorAll("input[type='password']")[1].value;
-    
+
     if (password !== confirmPassword) {
         showToast("red", "Passwords do not match");
         return;
     }
-    
+
     fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -326,4 +307,50 @@ function handleRegister(e) {
         .catch(err => showToast("red", "Network error"));
 }
 
-getPosts(1)
+
+function readMsg(e) {
+    if (e.key === "Enter") {
+        e.preventDefault()
+        const msg = e.target.value
+
+        if (msg != "") {
+            sendMessage(msg)
+        }
+
+        e.target.value = ""
+    }
+}
+
+
+function Init() {
+
+    document.addEventListener("DOMContentLoaded", expandPostCreationArea);
+
+    document.addEventListener("click", e => {
+        if (e.target.dataset.action === "login") showLogin();
+        if (e.target.dataset.action === "signup") showSignup();
+    });
+    getPosts(1)
+
+}
+Init()
+
+
+function sendMessage(msg) {
+    if (ws.readyState === WebSocket.OPEN) {
+        console.log("sending", msg);
+        ws.send(msg);
+    } else {
+        console.log("WebSocket not open, cannot send yet");
+    }
+}
+
+const ws = new WebSocket(`ws://${window.location.host}/ws`)
+ws.onopen = () => {
+    console.log("connected")
+    sendMessage({ msg: "hello" })
+}
+
+ws.onmessage = (e) => {
+    console.log("received:", e.data)
+}        

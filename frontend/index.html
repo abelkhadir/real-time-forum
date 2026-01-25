@@ -7,7 +7,6 @@
     <title>Forum & Chat</title>
     <link rel="stylesheet" href="/static/css/home.css">
     <link rel="stylesheet" href="/static/css/shared.css">
-
 </head>
 
 <body>
@@ -21,7 +20,7 @@
 
             <button class="btn btn-primary" onclick="openRegisterPopup()">Sign in</button>
 
-            <div id="register-popup" ></div>
+            <div id="register-popup"></div>
 
             <!--
             <button class="btn btn-primary">Log Out</button>
@@ -104,13 +103,11 @@
                 </div>
 
                 <div class="chat-input">
-                    <input type="text" placeholder="Aa">
+<input id="messageInput" onkeydown="readMsg(event)" type="text" placeholder="Message...">
                     <button class="btn btn-primary">Send</button>
                 </div>
             </div>
-
         </aside>
-
     </div>
 
     <button id="mobile-chat-btn" onclick="toggleMobileSidebar()">💬</button>
@@ -122,7 +119,6 @@
 
     <script>
         // --- 2. CHAT LOGIC ---
-
         function openChat(username) {
             // Set User Name
             document.getElementById('chat-username').innerText = username;

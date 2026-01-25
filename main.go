@@ -9,10 +9,10 @@ import (
 	"real/backend/handlers/api/auth/register"
 	"real/backend/handlers/api/home"
 	"real/backend/handlers/api/posts"
+	"real/backend/handlers/api/ws"
 )
 
 func main() {
-
 	err := db.InitDB()
 	if err != nil {
 		return
@@ -35,12 +35,7 @@ func main() {
 	mux.HandleFunc("POST /api/posts/create", login.CheckAuth(posts.CreatePost))
 	mux.HandleFunc("GET /api/posts/read", login.CheckAuth(posts.GetPostHandler))
 
-	// Create Comment
-	//mux.HandleFunc("/api/comments/create", handlers.CheckAuth(handlers.CreateComment))
-
-	// Private Messages (Chat)
-	//mux.HandleFunc("/api/messages/send", handlers.CheckAuth(handlers.SendMessage))
-	//mux.HandleFunc("/api/messages/get", handlers.CheckAuth(handlers.GetMessages))
+	mux.HandleFunc("/ws", (ws.WebSocketsHandler))
 	// frontend (HTML, CSS, JS)
 	fs := http.FileServer(http.Dir("./frontend/static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
