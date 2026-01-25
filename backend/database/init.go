@@ -19,6 +19,14 @@ func InitDB() error {
 
 func Migrate() error {
 	schema := `
+
+	CREATE TABLE IF NOT EXISTS users (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		username TEXT UNIQUE NOT NULL CHECK(length(username) BETWEEN 4 AND 24),
+		email TEXT UNIQUE NOT NULL CHECK(length(email) <= 100),
+		password_hash TEXT NOT NULL
+	);
+
   CREATE TABLE IF NOT EXISTS posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
@@ -42,7 +50,17 @@ func Migrate() error {
     FOREIGN KEY(post_id) REFERENCES posts(id),
     FOREIGN KEY(category_id) REFERENCES categories(id)
   );
+
+  CREATE TABLE IF NOT EXISTS sessions (
+		id TEXT PRIMARY KEY,
+		username TEXT NOT NULL,
+		expires_at DATETIME NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		CHECK(expires_at > created_at)
+	);
+
   `
+
 	_, err := db.Exec(schema)
 	return err
 }

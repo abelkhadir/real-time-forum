@@ -13,20 +13,17 @@
     <header>
         <div class="logo">FORUM.</div>
 
-        <div class="auth-bnts">
+        <div id="auth-btns" class="auth-btns">
+            <p id="username" class="hidden">Username loading...</p>
             <button class="btn btn-primary" onclick="openLoginPopup()">Log in</button>
-
-            <div id="login-popup"></div>
-
             <button class="btn btn-primary" onclick="openRegisterPopup()">Sign in</button>
-
-            <div id="register-popup"></div>
-
-            <!--
-            <button class="btn btn-primary">Log Out</button>
-             -->
         </div>
+
+        <button id="logout" class="btn btn-primary hidden">Log Out</button>
     </header>
+
+    <div id="login-popup" class="popup hidden"></div>
+    <div id="register-popup" class="popup hidden"></div>
 
     <div class="container">
 
@@ -103,7 +100,7 @@
                 </div>
 
                 <div class="chat-input">
-<input id="messageInput" onkeydown="readMsg(event)" type="text" placeholder="Message...">
+                    <input id="messageInput" onkeydown="readMessage(event)" type="text" placeholder="Message...">
                     <button class="btn btn-primary">Send</button>
                 </div>
             </div>
@@ -114,37 +111,8 @@
 
     <div id="toast-container"></div>
 
-
     <script src="/static/js/home.js"></script>
-
-    <script>
-        // --- 2. CHAT LOGIC ---
-        function openChat(username) {
-            // Set User Name
-            document.getElementById('chat-username').innerText = username;
-
-            // Switch Sidebar Views
-            document.getElementById('friends-list').classList.add('hidden');
-            document.getElementById('chat-conversation').classList.remove('hidden');
-        }
-
-        function closeChat() {
-            document.getElementById('chat-conversation').classList.add('hidden');
-            document.getElementById('friends-list').classList.remove('hidden');
-        }
-
-        // --- 3. MOBILE LOGIC ---
-        function toggleMobileSidebar() {
-            const sidebar = document.getElementById('right-sidebar');
-            if (sidebar.style.display === 'flex') {
-                sidebar.style.display = 'none';
-            } else {
-                sidebar.style.display = 'flex';
-                sidebar.classList.add('active');
-            }
-        }
-
-    </script>
+    <script src="/static/js/chat.js"></script>
 </body>
 
 </html>

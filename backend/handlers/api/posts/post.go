@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
 	db "real/backend/database"
 )
 
@@ -16,8 +17,8 @@ type PostReq struct {
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 	var req PostReq
 
+	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid JSON payload"})
 		return
@@ -27,8 +28,6 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	Username := UserID + "name"
 
 	err := db.InsertPost(Username, req.PostTitle, req.PostContent, req.PostCategories)
-
-	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

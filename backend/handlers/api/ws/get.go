@@ -5,49 +5,71 @@ import (
 	"log"
 	"net/http"
 
+	"real/backend/handlers/api/auth/utils"
+
 	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{}
 
+type Client struct {
+	Username string
+	Conn     *websocket.Conn
+}
+
+type Message struct {
+	To   string `json:"to"`
+	From string `json:"from"`
+	Msg  string `json:"msg"`
+}
+
+var clients = make(map[string]*Client)
+
 func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
+	username, err := utils.GetUsernameFromSession(r)
+	if err != nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Upgrade error:", err)
 		return
 	}
+
+	client := &Client{Username: username, Conn: conn}
+	clients[username] = client
+	log.Println("Client connected:", username)
+
 	defer func() {
-		log.Println("Connection closed")
+		delete(clients, username)
 		conn.Close()
+		log.Println("Client disconnected:", username)
 	}()
 
 	for {
-		// ReadMessage returns message type (text/binary) and raw bytes
-		msgType, msgBytes, err := conn.ReadMessage()
+		_, msgBytes, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("Read error:", err)
 			break
 		}
 
-		// Try to parse JSON first
-		var msg map[string]any
+		var msg Message
 		if err := json.Unmarshal(msgBytes, &msg); err != nil {
-			// Not JSON, treat as plain text
-			msg = map[string]any{"text": string(msgBytes)}
+			log.Println("Invalid JSON:", err)
+			continue
 		}
 
-		log.Println("Received:", msg)
+		// Server assigns sender
+		msg.From = username
 
-		// Echo message back as JSON
-		if err := conn.WriteJSON(msg); err != nil {
-			log.Println("Write error:", err)
-			break
-		}
-
-		// Optional: handle close frame gracefully
-		if msgType == websocket.CloseMessage {
-			log.Println("Client requested close")
-			break
+		if targetClient, ok := clients[msg.To]; ok {
+			if err := targetClient.Conn.WriteJSON(msg); err != nil {
+				log.Println("Write error:", err)
+			}
+		} else {
+			log.Println("Target client not found:", msg.To)
 		}
 	}
 }

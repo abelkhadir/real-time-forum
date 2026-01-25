@@ -7,6 +7,7 @@ import (
 	db "real/backend/database"
 	"real/backend/handlers/api/auth/login"
 	"real/backend/handlers/api/auth/register"
+	"real/backend/handlers/api/auth/user"
 	"real/backend/handlers/api/home"
 	"real/backend/handlers/api/posts"
 	"real/backend/handlers/api/ws"
@@ -27,15 +28,17 @@ func main() {
 
 	// backend routes
 	mux.HandleFunc("/", home.HomeHandler)
-	mux.HandleFunc("/api/register", register.Register)
-	mux.HandleFunc("/api/login", login.Login)
+	mux.HandleFunc("POST /api/register", register.Register)
+	mux.HandleFunc("POST /api/login", login.Login)
 	mux.HandleFunc("/api/logout", login.Logout)
 
 	mux.HandleFunc("GET /api/posts", login.CheckAuth(posts.GetPostsHandler))
 	mux.HandleFunc("POST /api/posts/create", login.CheckAuth(posts.CreatePost))
 	mux.HandleFunc("GET /api/posts/read", login.CheckAuth(posts.GetPostHandler))
 
-	mux.HandleFunc("/ws", (ws.WebSocketsHandler))
+	mux.HandleFunc("GET /api/user", login.CheckAuth(user.GetUserHandler))
+
+	mux.HandleFunc("/ws", ws.WebSocketsHandler)
 	// frontend (HTML, CSS, JS)
 	fs := http.FileServer(http.Dir("./frontend/static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
