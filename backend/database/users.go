@@ -115,3 +115,7 @@ func GetUserBySession(token string) (string, error) {
 
 	return username, nil
 }
+
+func DeleteSess(cookie string) {
+	db.Exec("DELETE FROM sessions WHERE id = ?", cookie)
+}

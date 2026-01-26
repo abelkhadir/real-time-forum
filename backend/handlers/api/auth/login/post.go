@@ -87,31 +87,30 @@ func Login(w http.ResponseWriter, r *http.Request) {
 // ==========================
 func Logout(w http.ResponseWriter, r *http.Request) {
 	// 1. Jbed cookie
-	/*
-		cookie, err := r.Cookie("session_token")
-		if err != nil {
-			// Ila makanch cookie, aslan howa logout
-			w.WriteHeader(http.StatusOK)
-			return
-		}
 
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		// Ila makanch cookie, aslan howa logout
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
-			// 2. Mse7 session mn Database
-			database.Db.Exec("DELETE FROM sessions WHERE id = ?", cookie.Value)
+	db.DeleteSess(cookie.Value)
 
-			// 3. 9tel l-Cookie f Browser (Set expired date)
-			http.SetCookie(w, &http.Cookie{
-				Name:     "session_token",
-				Value:    "",
-				Expires:  time.Unix(0, 0), // Date qdima
-				HttpOnly: true,
-				Path:     "/",
-				MaxAge:   -1, // Delete immediately
-			})
+	// 2. Mse7 session mn Database
 
-			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(map[string]string{"message": "Logged out"})
-	*/
+	// 3. 9tel l-Cookie f Browser (Set expired date)
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		Expires:  time.Unix(0, 0), // Date qdima
+		HttpOnly: true,
+		Path:     "/",
+		MaxAge:   -1, // Delete immediately
+	})
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Logged out"})
 }
 
 // CheckAuth Middleware
