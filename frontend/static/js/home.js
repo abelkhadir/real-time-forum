@@ -112,7 +112,7 @@ function getPosts(page = 1) {
 
 function renderPosts(posts) {
     const container = document.getElementById("posts-container");
-    container.innerHTML = ""; // remove old posts
+    container.innerHTML = "";
 
     posts.forEach(post => {
         const div = document.createElement("div");
@@ -121,7 +121,9 @@ function renderPosts(posts) {
 
         div.innerHTML = `
         <div class="post-header">
-            <div class="avatar"></div>
+            <div class="avatar">
+                <img style="width: 40px" id="avatar" src="/static/images/avatar-white.png">
+            </div>
             <div>
             <div class="username">${post.Username}</div>
             <div class="timestamp">${new Date(post.CreatedAt).toLocaleString()}</div>
@@ -334,7 +336,7 @@ function handleLogin(e) {
             if (data.success) {
                 showToast("green", "Logged in successfully");
                 closePopup();
-                setTimeout(() => { 
+                setTimeout(() => {
                     location.reload();
                 }, 500);
 
@@ -377,8 +379,46 @@ function handleRegister(e) {
         .catch(err => showToast("red", "Network error"));
 }
 
+function loadContacts() {
+    fetch("/api/contacts")
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                showToast("red", "Couldn't load contacts");
+                return;
+            }
 
-function Init() {
+            const div = document.getElementById("friends-list");
+            div.innerHTML = ""; // optional: clear old list
+
+            data.username.forEach(contact => {
+                const friend = document.createElement("div");
+                friend.className = "friends-item";
+
+                const statusClass = contact.Online ? "online-dot" : "offline-dot";
+                friend.innerHTML = `
+                    <div class="friend-item" onclick="openChat('${contact.Username}')">
+                        <div class="avatar">
+                            <img id="avatar" src="/static/images/avatar-white.png">
+                        </div>
+                        <span>${contact.Username}</span>
+                        <div class="${statusClass}"></div>
+                    </div>
+                `;
+                div.appendChild(friend);
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            showToast("red", "Couldn't load contacts");
+        });
+}
+
+
+
+
+function loadUser() {
+
 
     fetch("/api/user")
         .then(res => res.json())
@@ -386,8 +426,8 @@ function Init() {
             if (data.success) {
                 let user = document.getElementById("username");
                 user.classList.remove("hidden");
-                    user.textContent = data.username;
-                
+                user.textContent = data.username;
+
                 document.getElementById("logout").classList.remove("hidden");
                 document.getElementById("auth-btns").classList.add("hidden");
             } else {
@@ -396,14 +436,17 @@ function Init() {
             }
         })
         .catch();
+}
+
+function Init() {
+
+    loadUser()
+    loadContacts()
 
     document.addEventListener("DOMContentLoaded", expandPostCreationArea);
 
-    document.addEventListener("click", e => {
-        if (e.target.dataset.action === "login") showLogin();
-        if (e.target.dataset.action === "signup") showSignup();
-    });
     getPosts(1)
 }
 
 Init()
+

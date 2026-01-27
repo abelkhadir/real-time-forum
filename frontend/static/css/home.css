@@ -341,12 +341,18 @@ header {
     background: #f2f2f2;
 }
 
+.offline-dot,
 .online-dot {
     width: 10px;
     height: 10px;
     background: #31a24c;
     border-radius: 50%;
     margin-left: auto;
+}
+
+.offline-dot {
+    background: #ccc;
+    
 }
 
 /* Chat Window (Hidden by default) */

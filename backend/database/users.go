@@ -119,3 +119,39 @@ func GetUserBySession(token string) (string, error) {
 func DeleteSess(cookie string) {
 	db.Exec("DELETE FROM sessions WHERE id = ?", cookie)
 }
+
+type User struct {
+	Username string
+	Online   string
+}
+
+type Contact struct {
+	Username string
+	Online   bool
+}
+
+func GetContacts() ([]Contact, error) {
+	query := `
+		SELECT u.username,
+		       CASE WHEN s.username IS NOT NULL THEN true ELSE false END AS online
+		FROM users u
+		LEFT JOIN sessions s ON s.username = u.username
+	`
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var contacts []Contact
+	for rows.Next() {
+		var c Contact
+		if err := rows.Scan(&c.Username, &c.Online); err != nil {
+			return nil, err
+		}
+		contacts = append(contacts, c)
+	}
+
+	return contacts, rows.Err()
+}

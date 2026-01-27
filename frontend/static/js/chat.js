@@ -1,4 +1,5 @@
 let selectedUser;
+
 function openChat(username) {
     selectedUser = username
 

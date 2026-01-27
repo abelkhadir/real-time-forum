@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"real/backend/handlers/api/auth/utils"
+	db "real/backend/database"
 
 	"github.com/gorilla/websocket"
 )
@@ -26,9 +26,17 @@ type Message struct {
 var clients = make(map[string]*Client)
 
 func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
-	username, err := utils.GetUsernameFromSession(r)
+	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Unauthenticated"})
+		return
+	}
+
+	username, err := db.GetUserBySession(cookie.Value)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Unauthenticated"})
 		return
 	}
 

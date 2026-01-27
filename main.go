@@ -32,11 +32,12 @@ func main() {
 	mux.HandleFunc("POST /api/login", login.Login)
 	mux.HandleFunc("/api/logout", login.Logout)
 
-	mux.HandleFunc("GET /api/posts", login.CheckAuth(posts.GetPostsHandler))
+	mux.HandleFunc("GET /api/posts", posts.GetPostsHandler)
 	mux.HandleFunc("POST /api/posts/create", login.CheckAuth(posts.CreatePost))
-	mux.HandleFunc("GET /api/posts/read", login.CheckAuth(posts.GetPostHandler))
+	mux.HandleFunc("GET /api/posts/read", posts.GetPostHandler)
 
 	mux.HandleFunc("GET /api/user", login.CheckAuth(user.GetUserHandler))
+	mux.HandleFunc("GET /api/contacts", login.CheckAuth(user.GetUserHandler))
 
 	mux.HandleFunc("/ws", ws.WebSocketsHandler)
 	// frontend (HTML, CSS, JS)
