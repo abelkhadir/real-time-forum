@@ -19,7 +19,6 @@ function initWebSocket() {
 
     ws.onerror = (error) => {
         console.error("WebSocket error:", error);
-        showToast("red", "Connection error");
     };
 
     ws.onclose = () => {
@@ -93,6 +92,7 @@ function sendMessage(msg) {
 }
 
 function displayMessage(data) {
+    console.log(data)
     const chatMessagesContainer = document.getElementById('chat-messages-container');
     if (!chatMessagesContainer) return;
 
@@ -113,10 +113,11 @@ function sendMessageFromButton() {
 }
 
 function prevMessages(id) {
-    fetch(`/api/conversations/messages?id=${id}?limit=50`)
+    fetch(`/api/conversations/messages?id=${id}&limit=50`)
         .then(res => res.json())
-        .then(messages => {
-            console.log("Previous messages:", messages);
+        .then(data => {
+            console.log("Previous messages:", data.messages);
+            data.messages.forEach(msg => displayMessage(msg));
         })
         .catch(err => console.error("Failed to load messages:", err));
 }

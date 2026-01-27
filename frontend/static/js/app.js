@@ -6,7 +6,7 @@ function initApp() {
     loadUser();
 
     // Setup post creation UI
-    document.addEventListener("DOMContentLoaded", expandPostCreationArea);
+    expandPostCreationArea();
 
     // Load initial posts
     getPosts(1);

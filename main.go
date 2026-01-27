@@ -17,11 +17,13 @@ import (
 func main() {
 	err := db.InitDB()
 	if err != nil {
+		fmt.Println("Failed to initialize database:", err)
 		return
 	}
 
 	err = db.Migrate()
 	if err != nil {
+		fmt.Println("Failed to migrate database:", err)
 		return
 	}
 
@@ -31,7 +33,7 @@ func main() {
 	mux.HandleFunc("/", home.HomeHandler)
 	mux.HandleFunc("POST /api/register", register.Register)
 	mux.HandleFunc("POST /api/login", login.Login)
-	mux.HandleFunc("/api/logout", login.Logout)
+	mux.HandleFunc("GET /api/logout", login.Logout)
 
 	mux.HandleFunc("GET /api/posts", posts.GetPostsHandler)
 	mux.HandleFunc("POST /api/posts/create", login.CheckAuth(posts.CreatePost))
@@ -39,8 +41,8 @@ func main() {
 
 	mux.HandleFunc("GET /api/contacts", user.GetContactsHandler)
 
-	mux.HandleFunc("/ws", ws.WebSocketsHandler)
-	mux.HandleFunc("/api/conversations/messages", ws.PreviousMessagesHandler)
+	mux.HandleFunc("GET /ws", ws.WebSocketsHandler)
+	mux.HandleFunc("GET /api/conversations/messages", ws.PreviousMessagesHandler)
 
 	// frontend (HTML, CSS, JS)
 	fs := http.FileServer(http.Dir("./frontend/static"))

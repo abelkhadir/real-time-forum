@@ -48,3 +48,17 @@ img {
     max-width: 70%;
     word-break: break-word;
 }
+
+.no-contacts {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  justify-content: center;
+  height: 100%;         
+}
+
+.no-contacts p {
+  color: #888;
+  font-style: italic;
+  padding-top: 40%;
+}

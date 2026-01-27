@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	db "real/backend/database"
@@ -25,6 +26,7 @@ func PreviousMessagesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	messages, err := db.ReadMessages(username, r.URL.Query().Get("id"))
+	fmt.Println(messages)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Could not retrieve messages"})

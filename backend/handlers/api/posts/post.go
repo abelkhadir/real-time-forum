@@ -15,6 +15,7 @@ type PostReq struct {
 }
 
 func CreatePost(w http.ResponseWriter, r *http.Request) {
+	// choose valid category, title + content non empty
 	var req PostReq
 
 	w.Header().Set("Content-Type", "application/json")
@@ -24,10 +25,21 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	UserID := "4041-3030"
-	Username := UserID + "name"
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Unauthenticated"})
+		return
+	}
 
-	err := db.InsertPost(Username, req.PostTitle, req.PostContent, req.PostCategories)
+	username, err := db.GetUserBySession(cookie.Value)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Unauthenticated"})
+		return
+	}
+
+	err = db.InsertPost(username, req.PostTitle, req.PostContent, req.PostCategories)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

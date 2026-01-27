@@ -1,5 +1,7 @@
 package db
 
+import "fmt"
+
 type Message struct {
 	To   string `json:"to"`
 	From string `json:"from"`
@@ -7,17 +9,17 @@ type Message struct {
 }
 
 func SaveMessage(from, to, message string) error {
-	db.Exec(`INSERT INTO messages (sender, receiver, content) VALUES (?, ?, ?)`, from, to, message)
+	_, err := db.Exec(`INSERT INTO messages (from_username, to_username, content) VALUES (?, ?, ?)`, from, to, message)
 
-	return nil
+	fmt.Println("Saved message from", from, "to", to, ":", message)
+	return err
 }
 
 func ReadMessages(from, to string) ([]Message, error) {
-	rows, err := db.Query(`SELECT m.* FROM messages m
-		WHERE (m.from_username = ? AND m.to_username = ?)
-		OR (m.from_username = ? AND m.to_username = ?)
-		ORDER BY m.created_at ASC;
-	`, from, to, to, from)
+	rows, err := db.Query(`SELECT from_username, to_username, content FROM messages
+		WHERE (from_username = ? AND to_username = ?)
+		ORDER BY created_at ASC;
+	`, from, to)
 	if err != nil {
 		return nil, err
 	}
