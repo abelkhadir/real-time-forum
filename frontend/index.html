@@ -14,12 +14,15 @@
         <div class="logo">FORUM.</div>
 
         <div id="auth-btns" class="auth-btns">
-            <p id="username" class="hidden">Username loading...</p>
             <button class="btn btn-primary" onclick="openLoginPopup()">Log in</button>
             <button class="btn btn-primary" onclick="openRegisterPopup()">Sign in</button>
         </div>
 
-        <button id="logout" class="btn btn-primary hidden">Log Out</button>
+        <div id="unauth-btns" class="auth-btns">
+            <p id="username" class="hidden">Username loading...</p>
+            <button id="logout" class="btn btn-primary hidden">Log Out</button>
+        </div>
+
     </header>
 
     <div id="login-popup" class="popup hidden"></div>
@@ -69,19 +72,20 @@
             <div id="chat-conversation" class="chat-window hidden">
                 <div class="chat-header">
                     <button class="btn btn-back" onclick="closeChat()">←</button>
-                    <div class="avatar" style="width: 30px; height: 30px; margin-right: 10px;"></div>
+
+                    <div class="avatar">
+                        <img id="avatar" src="/static/images/avatar-white.png">
+                    </div>
+
                     <span id="chat-username">User Name</span>
                 </div>
 
-                <div class="chat-messages">
-                    <div class="msg msg-in">Salam, cv?</div>
-                    <div class="msg msg-out">Hamdoulah, wnta?</div>
-                    <div class="msg msg-in">Kayn chi jadid f l-projet?</div>
+                <div class="chat-messages" id="chat-messages-container">
                 </div>
 
                 <div class="chat-input">
                     <input id="messageInput" onkeydown="readMessage(event)" type="text" placeholder="Message...">
-                    <button class="btn btn-primary">Send</button>
+                    <button class="btn btn-primary" onclick="sendMessageFromButton()">Send</button>
                 </div>
             </div>
         </aside>
@@ -91,8 +95,17 @@
 
     <div id="toast-container"></div>
 
-    <script src="/static/js/home.js"></script>
+    <!-- Core utilities must load first -->
+    <script src="/static/js/utils.js"></script>
+
+    <!-- Feature modules -->
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/posts.js"></script>
+    <script src="/static/js/user.js"></script>
     <script src="/static/js/chat.js"></script>
+
+    <!-- App initialization must load last -->
+    <script src="/static/js/app.js"></script>
 </body>
 
 </html>

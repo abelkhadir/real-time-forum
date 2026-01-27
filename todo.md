@@ -1,4 +1,3 @@
 filter by categories
-chat
-friends
+chat - save in db
 profile page

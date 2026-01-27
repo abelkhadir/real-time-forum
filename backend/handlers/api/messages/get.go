@@ -72,6 +72,8 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 		// Server assigns sender
 		msg.From = username
 
+		db.SaveMessage(msg.From, msg.To, msg.Msg)
+
 		if targetClient, ok := clients[msg.To]; ok {
 			if err := targetClient.Conn.WriteJSON(msg); err != nil {
 				log.Println("Write error:", err)

@@ -59,7 +59,15 @@ func Migrate() error {
 		FOREIGN KEY(category_id) REFERENCES categories(id)
 	);
 
-
+	CREATE TABLE messages (
+		id INTEGER PRIMARY KEY,
+		from_username INTEGER NOT NULL,
+		to_username INTEGER NOT NULL,
+		content TEXT NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (from_user_id) REFERENCES users(id),
+		FOREIGN KEY (to_user_id) REFERENCES users(id)
+	);
   `
 
 	_, err := db.Exec(schema)

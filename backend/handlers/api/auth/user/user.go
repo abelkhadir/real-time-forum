@@ -7,8 +7,13 @@ import (
 	db "real/backend/database"
 )
 
-func GetUserHandler(w http.ResponseWriter, r *http.Request) {
+func GetContactsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	username := ""
+	cookie, err := r.Cookie("session_token")
+	if err == nil {
+		username, _ = db.GetUserBySession(cookie.Value)
+	}
 
 	contacts, err := db.GetContacts()
 	if err != nil {
@@ -20,6 +25,7 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]any{
 		"success":  true,
-		"username": contacts,
+		"username": username,
+		"contacts": contacts,
 	})
 }

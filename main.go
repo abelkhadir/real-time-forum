@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	db "real/backend/database"
@@ -9,8 +10,8 @@ import (
 	"real/backend/handlers/api/auth/register"
 	"real/backend/handlers/api/auth/user"
 	"real/backend/handlers/api/home"
+	ws "real/backend/handlers/api/messages"
 	"real/backend/handlers/api/posts"
-	"real/backend/handlers/api/ws"
 )
 
 func main() {
@@ -36,14 +37,15 @@ func main() {
 	mux.HandleFunc("POST /api/posts/create", login.CheckAuth(posts.CreatePost))
 	mux.HandleFunc("GET /api/posts/read", posts.GetPostHandler)
 
-	mux.HandleFunc("GET /api/user", login.CheckAuth(user.GetUserHandler))
-	mux.HandleFunc("GET /api/contacts", login.CheckAuth(user.GetUserHandler))
+	mux.HandleFunc("GET /api/contacts", user.GetContactsHandler)
 
 	mux.HandleFunc("/ws", ws.WebSocketsHandler)
+	mux.HandleFunc("/api/conversations/messages", ws.PreviousMessagesHandler)
+
 	// frontend (HTML, CSS, JS)
 	fs := http.FileServer(http.Dir("./frontend/static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	fmt.Println("Server started at http://localhost:8080")
-	http.ListenAndServe(":8080", mux)
+	log.Panic(http.ListenAndServe(":8080", mux))
 }
