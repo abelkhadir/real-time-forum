@@ -179,9 +179,15 @@ function renderPostDetail(post) {
       <br>
       <div class="comment-input-area">
         <div class="avatar" style="width: 30px; height: 30px;"></div>
-        <input type="text" placeholder="Write a comment...">
-        <button class="btn btn-primary" style="padding: 0 15px;">➤</button>
+        <input type="text" id="commentInput" placeholder="Write a comment...">
+        <button class="btn btn-primary" style="padding: 0 15px;" onclick="submitComment()">➤</button>
       </div>
+      <div id="comments-container" style="margin-top: 20px;"></div>
     </div>
   `;
+
+  // Set the current post ID and load comments
+  setCurrentPostId(post.ID);
+  loadComments(post.ID);
 }
+

@@ -155,3 +155,18 @@ func GetContacts() ([]Contact, error) {
 
 	return contacts, rows.Err()
 }
+
+func GetUserIDByUsername(username string) (int, error) {
+	var userID int
+
+	query := `SELECT id FROM users WHERE username = ?`
+	err := db.QueryRow(query, username).Scan(&userID)
+
+	if err == sql.ErrNoRows {
+		return 0, fmt.Errorf("user not found")
+	} else if err != nil {
+		return 0, err
+	}
+
+	return userID, nil
+}
