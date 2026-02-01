@@ -39,9 +39,11 @@ func main() {
 	mux.HandleFunc("GET /api/posts", posts.GetPostsHandler)
 	mux.HandleFunc("POST /api/posts/create", login.CheckAuth(posts.CreatePost))
 	mux.HandleFunc("GET /api/posts/read", posts.GetPostHandler)
+	mux.HandleFunc("POST /api/posts/like", login.CheckAuth(posts.LikePost))
 
 	mux.HandleFunc("GET /api/comments", comments.GetComments)
 	mux.HandleFunc("POST /api/comments/create", login.CheckAuth(comments.CreateComment))
+	mux.HandleFunc("POST /api/comments/like", login.CheckAuth(comments.LikeComment))
 
 	mux.HandleFunc("GET /api/contacts", user.GetContactsHandler)
 

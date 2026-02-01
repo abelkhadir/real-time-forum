@@ -5,108 +5,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forum & Chat</title>
+
     <link rel="stylesheet" href="/static/css/home.css">
     <link rel="stylesheet" href="/static/css/shared.css">
 </head>
 
 <body>
-    <header>
-        <div class="logo">FORUM.</div>
+<header>
+    <div class="logo">FORUM.</div>
 
-        <div id="auth-btns" class="auth-btns">
-            <button class="btn btn-primary" onclick="openLoginPopup()">Log in</button>
-            <button class="btn btn-primary" onclick="openRegisterPopup()">Sign in</button>
-        </div>
-
-        <div id="unauth-btns" class="hidden">
-            <p id="username" class="hidden">Username loading...</p>
-            <button id="logout" class="btn btn-primary hidden">Log Out</button>
-        </div>
-
-    </header>
-
-    <div id="login-popup" class="popup hidden"></div>
-    <div id="register-popup" class="popup hidden"></div>
-
-    <div class="container">
-
-        <main class="main-content">
-
-            <div id="feed-view">
-                <div
-                    style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
-
-                    <div style="display: flex; gap: 10px;">
-                        <div class="avatar">
-                            <img id="avatar" src="/static/images/avatar-white.png">
-                        </div>
-                        <div class="post-box">
-                            <input id="titleCreationArea" type="text" placeholder="Choose a title for your post..">
-
-                            <textarea id="postCreationArea" placeholder="What's on your mind?"></textarea>
-
-                            <div class="category-row">
-                                <button class="cat active" data-cat="general">General</button>
-                                <button class="cat" data-cat="news">News</button>
-                                <button class="cat" data-cat="tech">Tech</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="posts-container"></div>
-
-            </div>
-
-            <div id="post-view" class="post-detail-view hidden">
-                <div id="post-detail-container"></div>
-            </div>
-        </main>
-
-        <aside class="sidebar" id="right-sidebar">
-
-            <div id="friends-list">
-                <div class="sidebar-header">Contacts</div>
-            </div>
-
-            <div id="chat-conversation" class="chat-window hidden">
-                <div class="chat-header">
-                    <button class="btn btn-back" onclick="closeChat()">←</button>
-
-                    <div class="avatar">
-                        <img id="avatar" src="/static/images/avatar-white.png">
-                    </div>
-
-                    <span id="chat-username">User Name</span>
-                </div>
-
-                <div class="chat-messages" id="chat-messages-container">
-                </div>
-
-                <div class="chat-input">
-                    <input id="messageInput" onkeydown="readMessage(event)" type="text" placeholder="Message...">
-                    <button class="btn btn-primary" onclick="sendMessageFromButton()">Send</button>
-                </div>
-            </div>
-        </aside>
+    <div id="auth-btns" class="auth-btns">
+        <button class="btn btn-primary" onclick="openLoginPopup()">Log in</button>
+        <button class="btn btn-primary" onclick="openRegisterPopup()">Sign in</button>
     </div>
 
-    <button id="mobile-chat-btn" onclick="toggleMobileSidebar()">💬</button>
+    <div id="unauth-btns" class="hidden">
+        <p id="username" class="hidden">Username loading...</p>
+        <button id="logout" class="btn btn-primary hidden">Log Out</button>
+    </div>
+</header>
 
-    <div id="toast-container"></div>
+<div id="login-popup" class="popup hidden"></div>
+<div id="register-popup" class="popup hidden"></div>
 
-    <!-- Core utilities must load first -->
-    <script src="/static/js/utils.js"></script>
+<div class="container">
 
-    <!-- Feature modules -->
-    <script src="/static/js/auth.js"></script>
-    <script src="/static/js/posts.js"></script>
-    <script src="/static/js/comments.js"></script>
-    <script src="/static/js/user.js"></script>
-    <script src="/static/js/chat.js"></script>
+<main class="main-content">
 
-    <!-- App initialization must load last -->
-    <script src="/static/js/app.js"></script>
+<!-- FEED VIEW -->
+<div id="feed-view">
+
+<div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+
+<div style="display: flex; gap: 10px;">
+<div class="avatar">
+    <img src="/static/images/avatar-white.png">
+</div>
+
+<div class="post-box">
+<input id="titleCreationArea" type="text" placeholder="Choose a title for your post..">
+
+<textarea id="postCreationArea" placeholder="What's on your mind?"></textarea>
+
+<div class="category-row">
+    <button class="cat active" data-cat="general">General</button>
+    <button class="cat" data-cat="news">News</button>
+    <button class="cat" data-cat="tech">Tech</button>
+</div>
+
+</div>
+</div>
+</div>
+
+<div id="posts-container"></div>
+</div>
+
+<!-- POST DETAIL VIEW -->
+<div id="post-view" class="post-detail-view hidden">
+<div id="post-detail-container"></div>
+</div>
+
+</main>
+
+<!-- SIDEBAR CHAT -->
+<aside class="sidebar" id="right-sidebar">
+
+<div id="friends-list">
+<div class="sidebar-header">Contacts</div>
+</div>
+
+<div id="chat-conversation" class="chat-window hidden">
+
+<div class="chat-header">
+<button class="btn btn-back" onclick="closeChat()">←</button>
+
+<div class="avatar">
+<img src="/static/images/avatar-white.png">
+</div>
+
+<span id="chat-username">User Name</span>
+</div>
+
+<div class="chat-messages" id="chat-messages-container"></div>
+
+<div class="chat-input">
+<input id="messageInput" onkeydown="readMessage(event)" type="text" placeholder="Message...">
+<button class="btn btn-primary" onclick="sendMessageFromButton()">Send</button>
+</div>
+
+</div>
+</aside>
+
+</div>
+
+<button id="mobile-chat-btn" onclick="toggleMobileSidebar()">💬</button>
+
+<div id="toast-container"></div>
+
+
+<script src="/static/js/utils.js"></script>
+
+<script src="/static/js/auth.js"></script>
+
+<script src="/static/js/posts.js"></script>
+
+<script src="/static/js/comments.js"></script>
+<script src="/static/js/user.js"></script>
+<script src="/static/js/chat.js"></script>
+
+<script src="/static/js/app.js"></script>
+
 </body>
-
 </html>

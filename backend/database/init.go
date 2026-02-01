@@ -42,6 +42,7 @@ func Migrate() error {
 		title TEXT NOT NULL,
 		content TEXT NOT NULL,
 		likes_num INTEGER NOT NULL DEFAULT 0,
+		dislikes_num INTEGER NOT NULL DEFAULT 0,
 		comments_num INTEGER NOT NULL DEFAULT 0,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);
@@ -83,6 +84,7 @@ func Migrate() error {
 		user_id INTEGER,
 		post_id INTEGER,
 		is_like BOOLEAN,
+		like_value INTEGER,
 		PRIMARY KEY(user_id, post_id),
 		FOREIGN KEY(user_id) REFERENCES users(id),
 		FOREIGN KEY(post_id) REFERENCES posts(id)
@@ -92,6 +94,7 @@ func Migrate() error {
 		user_id INTEGER,
 		comment_id INTEGER,
 		is_like BOOLEAN,
+		like_value INTEGER,
 		PRIMARY KEY(user_id, comment_id),
 		FOREIGN KEY(user_id) REFERENCES users(id),
 		FOREIGN KEY(comment_id) REFERENCES comments(id)

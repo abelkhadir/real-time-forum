@@ -1,4 +1,3 @@
-// Post Creation and Display Functions
 
 function expandPostCreationArea() {
     const post = document.getElementById("postCreationArea");
@@ -6,10 +5,8 @@ function expandPostCreationArea() {
     const box = post.closest(".post-box");
     const cats = document.querySelectorAll(".cat");
 
-    // Multi-select logic
     cats.forEach(btn => {
         btn.addEventListener("mousedown", (e) => {
-            // Use mousedown to prevent focus loss issues
             e.preventDefault();
             btn.classList.toggle("active");
         });
@@ -17,9 +14,7 @@ function expandPostCreationArea() {
 
     post.addEventListener("focus", () => box.classList.add("expanded"));
 
-    // Fix: Check if focus moved inside the same box
     box.addEventListener("focusout", (e) => {
-        // Delay check to see where focus went
         setTimeout(() => {
             if (!box.contains(document.activeElement)) {
                 if (!post.value.trim() && !title.value.trim()) {
@@ -65,29 +60,29 @@ function createPost(title, content, categories) {
             categories: categories
         }),
     })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                showToast("green", "Post Created successfully");
-                getPosts()
-            } else {
-                showToast("red", `Couldnt create post: ${data.error}`);
-            }
-        })
-        .catch(err => console.log(err));
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast("green", "Post Created successfully");
+            getPosts()
+        } else {
+            showToast("red", `Couldnt create post: ${data.error}`);
+        }
+    })
+    .catch(err => console.log(err));
 }
 
 function getPosts(page = 1) {
     fetch(`/api/posts?page=${page}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                renderPosts(data.posts);
-            } else {
-                showToast("red", "couldn't load posts");
-            }
-        })
-        .catch(err => console.log(err));
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            renderPosts(data.posts);
+        } else {
+            showToast("red", "couldn't load posts");
+        }
+    })
+    .catch(err => console.log(err));
 }
 
 function renderPosts(posts) {
@@ -97,7 +92,12 @@ function renderPosts(posts) {
     posts.forEach(post => {
         const div = document.createElement("div");
         div.className = "post-card";
-        div.onclick = () => openPost(post.ID);
+        div.onclick = () => openPost(post.ID || post.id);
+        console.log(posts);
+        const comments = post.Comments_num ;
+        const likes = post.Likes_num || post.likes_count || 0;
+        const dislikes = post.Dislikes_num || post.dislikes_count || 0;
+        const cats = post.Categories || [];
 
         div.innerHTML = `
         <div class="post-header">
@@ -112,10 +112,10 @@ function renderPosts(posts) {
         <div class="post-body">${post.Title}</div>
         <div class="post-stats">
             <span class="stats-left">
-                ${post.Comments_num} Comments • ${post.Likes_num} Likes
+                ${comments} Comments • ${likes} Likes • ${dislikes} Dislikes 
             </span>
             <span class="stats-right">
-                ${post.Categories.join(" • ")}
+                ${cats.join(" • ")}
             </span>
         </div>
     `;
@@ -146,8 +146,20 @@ function closePost() {
     document.getElementById("feed-view").classList.remove("hidden");
 }
 
+let currentPostId = null;
+
+function setCurrentPostId(postId) {
+    currentPostId = postId;
+}
+
 function renderPostDetail(post) {
     const container = document.getElementById("post-detail-container");
+    currentPostId = post.ID || post.id;
+  console.log(post);
+    const comments = post.Comments_num || post.comments_count || 0;
+    const likes = post.Likes_num || post.likes_count || 0;
+    const dislikes = post.Dislikes_num || post.dislikes_count || 0;
+    const cats = post.Categories || [];
 
     container.innerHTML = `
     <div style="display: flex; align-items: center; margin-bottom: 15px;">
@@ -156,7 +168,7 @@ function renderPostDetail(post) {
     </div>
 
     <div class="post-header">
-      <div class="avatar"></div>
+      <div class="avatar"><img src="/static/images/avatar-white.png" style="width:40px"></div>
       <div>
         <div class="username">${post.Username}</div>
         <div class="timestamp">${new Date(post.CreatedAt).toLocaleString()}</div>
@@ -170,24 +182,64 @@ function renderPostDetail(post) {
     </div>
 
     <div class="post-stats">
-      <span>${post.Comments_num} Comments • ${post.Likes_num} Likes</span>
-      <span>${post.Categories.join(" • ")}</span>
+      <span>${comments} Comments • ${likes} Likes • ${dislikes} Dislikes</span>
+      <span>${cats.join(" • ")}</span>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin: 15px 0;">
+      <button class="btn btn-primary" onclick="likePost(${currentPostId})">👍 Like</button>
+      <button class="btn btn-primary" onclick="dislikePost(${currentPostId})">👎 Dislike</button>
     </div>
 
     <div class="comment-section">
       <h4>Comments</h4>
       <br>
       <div class="comment-input-area">
-        <div class="avatar" style="width: 30px; height: 30px;"></div>
+        <div class="avatar" style="width: 30px; height: 30px;"><img src="/static/images/avatar-white.png" style="width:100%"></div>
         <input type="text" id="commentInput" placeholder="Write a comment...">
         <button class="btn btn-primary" style="padding: 0 15px;" onclick="submitComment()">➤</button>
       </div>
       <div id="comments-container" style="margin-top: 20px;"></div>
     </div>
-  `;
+    `;
 
-  // Set the current post ID and load comments
-  setCurrentPostId(post.ID);
-  loadComments(post.ID);
+    loadComments(currentPostId);
 }
 
+function likePost(postId) {
+    votePost(postId, true);
+}
+
+function dislikePost(postId) {
+    votePost(postId, false);
+}
+
+function votePost(postId, isLike) {
+    fetch("/api/posts/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            post_id: postId,
+            is_like: isLike
+        }),
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast("green", isLike ? "Liked!" : "Disliked!");
+            refreshCurrentPost();
+        }
+    });
+}
+
+function refreshCurrentPost() {
+    if(!currentPostId) return;
+
+    fetch(`/api/posts/read?id=${currentPostId}`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            renderPostDetail(data.post);
+        }
+    });
+}

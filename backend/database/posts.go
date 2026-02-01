@@ -50,6 +50,7 @@ type Post struct {
 	Content      string
 	Categories   []string
 	Likes_num    int
+	Dislikes_num int
 	Comments_num int
 	CreatedAt    string
 }
@@ -64,7 +65,10 @@ func GetPosts(page, limit int) ([]Post, error) {
       p.title,
       p.content,
       p.created_at,
-      IFNULL(GROUP_CONCAT(c.name, ','), '') AS categories
+      IFNULL(GROUP_CONCAT(c.name, ','), '') AS categories,
+      (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id AND is_like = 1) AS likes_num,
+      (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id AND is_like = 0) AS dislikes_num,
+      (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comments_num
     FROM posts p
     LEFT JOIN post_categories pc ON pc.post_id = p.id
     LEFT JOIN categories c ON c.id = pc.category_id
@@ -83,7 +87,7 @@ func GetPosts(page, limit int) ([]Post, error) {
 		var p Post
 		var catStr string
 
-		if err := rows.Scan(&p.ID, &p.Username, &p.Title, &p.Content, &p.CreatedAt, &catStr); err != nil {
+		if err := rows.Scan(&p.ID, &p.Username, &p.Title, &p.Content, &p.CreatedAt, &catStr, &p.Likes_num, &p.Dislikes_num, &p.Comments_num); err != nil {
 			return nil, err
 		}
 
@@ -109,8 +113,9 @@ func GetPost(id int) (Post, error) {
             p.content,
             p.created_at,
             IFNULL(GROUP_CONCAT(c.name, ','), '') AS categories,
-            0 AS likes_num,
-            0 AS comments_num
+            (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id AND is_like = 1) AS likes_num,
+            (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id AND is_like = 0) AS dislikes_num,
+			(SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comments_num
         FROM posts p
         LEFT JOIN post_categories pc ON pc.post_id = p.id
         LEFT JOIN categories c ON c.id = pc.category_id
@@ -128,6 +133,7 @@ func GetPost(id int) (Post, error) {
 		&p.CreatedAt,
 		&catStr,
 		&p.Likes_num,
+		&p.Dislikes_num,
 		&p.Comments_num,
 	)
 	if err != nil {
@@ -139,4 +145,40 @@ func GetPost(id int) (Post, error) {
 	}
 
 	return p, nil
+}
+
+func UpdatePostLike(userID, postID int, isLike bool) error {
+
+	var existing *bool
+
+	err := db.QueryRow(`
+        SELECT is_like FROM post_likes
+        WHERE user_id = ? AND post_id = ?`,
+		userID, postID).Scan(&existing)
+
+	if err != nil {
+		_, err = db.Exec(`
+            INSERT INTO post_likes(user_id, post_id, is_like)
+            VALUES (?, ?, ?)`,
+			userID, postID, isLike)
+
+		return err
+	}
+
+	if *existing == isLike {
+		_, err = db.Exec(`
+            DELETE FROM post_likes
+            WHERE user_id = ? AND post_id = ?`,
+			userID, postID)
+
+		return err
+	}
+
+	_, err = db.Exec(`
+        UPDATE post_likes
+        SET is_like = ?
+        WHERE user_id = ? AND post_id = ?`,
+		isLike, userID, postID)
+
+	return err
 }
