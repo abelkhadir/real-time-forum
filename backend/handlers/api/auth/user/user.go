@@ -21,11 +21,13 @@ func GetContactsHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{"error": "Could not retrieve user information"})
 		return
 	}
+	email, _ := db.GetEmailBySession(username)
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]any{
 		"success":  true,
 		"username": username,
+		"email":    email,
 		"contacts": contacts,
 	})
 }

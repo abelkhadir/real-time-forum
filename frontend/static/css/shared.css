@@ -42,11 +42,11 @@ img {
 }
 
 .msg {
-    margin-bottom: 15px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    max-width: 70%;
-    word-break: break-word;
+  margin-bottom: 15px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  max-width: 70%;
+  word-break: break-word;
 }
 
 .no-contacts {
@@ -54,11 +54,122 @@ img {
   align-items: center;
   margin-top: auto;
   justify-content: center;
-  height: 100%;         
+  height: 100%;
 }
 
 .no-contacts p {
   color: #888;
   font-style: italic;
   padding-top: 40%;
+}
+
+/* Dropdown */
+
+#unauth-btns {
+  position: relative;
+  overflow: visible;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 240px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-left: 3px solid #4a90e2;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 12px 0;
+}
+
+.profile-header {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.usernameMenu {
+  font-weight: 600;
+  font-size: 14px;
+  color: #4a90e2;
+}
+
+.emailMenu {
+  font-size: 12px;
+  color: #666;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  color: #333;
+  text-decoration: none;
+  font-size: 13px;
+
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: none;
+  color: #e74c3c;
+  font-size: 13px;
+  cursor: pointer;
+  border-top: 1px solid #e0e0e0;
+}
+
+.logout-btn:hover {
+  background: #fafafa;
+}
+
+#logout {
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  color: red;
+  cursor: pointer;
+}
+
+.popover-wrapper {
+  position: relative;
+}
+
+.notifications-trigger {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  color: #ff9500;
+}
+
+.notifications-counter {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 18px;
+  height: 18px;
+  background: #ff9500;
+  color: white;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

@@ -100,6 +100,22 @@ func GetUserByEmail(email string) (string, error) {
 	return user, nil
 }
 
+func GetEmailBySession(username string) (string, error) {
+	var email string
+
+	query := `SELECT email FROM users WHERE username = ?`
+	err := db.QueryRow(query, username).Scan(&email)
+
+	if err == sql.ErrNoRows {
+		return "", fmt.Errorf("no email found")
+	} else if err != nil {
+		fmt.Printf("Database error: %v", err)
+		return "", fmt.Errorf("Database error: %v", err)
+	}
+
+	return email, nil
+}
+
 func GetUserBySession(token string) (string, error) {
 	var username string
 

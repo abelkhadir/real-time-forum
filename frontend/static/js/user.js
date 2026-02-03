@@ -40,14 +40,14 @@ function loadUser() {
             if (data.success) {
                 if (data.username != "") {
                     let user = document.getElementById("username");
-                    user.classList.remove("hidden");
                     user.textContent = data.username;
-                    
+                    let email = document.getElementById("email");
+                    email.textContent = data.email;
                     document.getElementById("logout").classList.remove("hidden");
                     document.getElementById("auth-btns").classList.add("hidden");
                     document.getElementById("unauth-btns").classList.remove("hidden");
                 }
-            
+
                 loadContacts(data.contacts, data.username);
             } else {
                 document.getElementById("logout").classList.add("hidden");
@@ -55,4 +55,9 @@ function loadUser() {
             }
         })
         .catch(e => console.error(e));
+}
+
+
+function toggleLogout() {
+    document.getElementById("menu-dropdown").classList.toggle("hidden");
 }
