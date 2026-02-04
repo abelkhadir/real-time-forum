@@ -24,6 +24,7 @@ func Migrate() error {
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		username TEXT UNIQUE NOT NULL CHECK(length(username) BETWEEN 4 AND 24),
 		email TEXT UNIQUE NOT NULL CHECK(length(email) <= 100),
+		is_online BOOLEAN NOT NULL DEFAULT 0,
 		password_hash TEXT NOT NULL
 	);
 
@@ -101,5 +102,16 @@ func Migrate() error {
 	);
   `
 	_, err := db.Exec(schema)
+	return err
+}
+
+func AddOnline(username string) error {
+
+	_, err := db.Exec("UPDATE users SET is_online = 1 WHERE username = ?", username)
+	return err
+}
+
+func RemoveOnline(username string) error {
+	_, err := db.Exec("UPDATE users SET is_online = 0 WHERE username = ?", username)
 	return err
 }

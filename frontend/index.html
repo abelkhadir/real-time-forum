@@ -21,7 +21,7 @@
 
         <div id="unauth-btns" class="hidden">
             <div style="display: inline-flex; gap: 20px; align-items: center;">
-                <button class="notifications-trigger">
+                <button class="notifications-trigger" onclick="toggleNotifs(event)">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7" />
@@ -30,7 +30,16 @@
                     <span class="notifications-counter">1</span>
                 </button>
 
-                <div class="avatar" style="cursor: pointer;" onclick="toggleLogout()">
+                <div id="notif-menu" class="notif-menu hidden">
+                    <div class="menu-header">Notifications</div>
+                    <div id="notifications-container" class="notifications-container">
+                        <div class="notification-item">New message from abde</div>
+                        <div class="notification-item">New message from abde2</div>
+                        <div class="notification-item">New message from abde3</div>
+                    </div>
+                </div>
+
+                <div class="avatar" style="cursor: pointer;" onclick="toggleLogout(event)">
                     <img src="/static/images/avatar-white.png">
                 </div>
 

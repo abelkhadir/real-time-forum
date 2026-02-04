@@ -57,7 +57,29 @@ function loadUser() {
         .catch(e => console.error(e));
 }
 
+const menu = document.getElementById("menu-dropdown");
+const notifMenu = document.getElementById("notif-menu");
 
-function toggleLogout() {
-    document.getElementById("menu-dropdown").classList.toggle("hidden");
+function toggleLogout(e) {
+    e.stopPropagation();
+    menu.classList.toggle("hidden");
+    notifMenu.classList.add("hidden");
 }
+
+function toggleNotifs(e) {
+    e.stopPropagation();
+    notifMenu.classList.toggle("hidden");
+    menu.classList.add("hidden");
+
+    const counter = document.querySelector(".notifications-counter");
+    if (counter) {
+        counter.textContent = "0";
+    }
+    counter.classList.add("hidden");
+}
+
+document.addEventListener("click", () => {
+    menu.classList.add("hidden");
+    notifMenu.classList.add("hidden");
+});
+

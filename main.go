@@ -34,7 +34,7 @@ func main() {
 	mux.HandleFunc("/", home.HomeHandler)
 	mux.HandleFunc("POST /api/register", register.Register)
 	mux.HandleFunc("POST /api/login", login.Login)
-	mux.HandleFunc("GET /api/logout", login.Logout)
+	mux.HandleFunc("POST /api/logout", login.Logout)
 
 	mux.HandleFunc("GET /api/posts", posts.GetPostsHandler)
 	mux.HandleFunc("POST /api/posts/create", login.CheckAuth(posts.CreatePost))
@@ -47,7 +47,6 @@ func main() {
 
 	mux.HandleFunc("GET /api/contacts", user.GetContactsHandler)
 
-	mux.HandleFunc("POST /api/logout", login.Logout)
 	mux.HandleFunc("GET /ws", ws.WebSocketsHandler)
 	mux.HandleFunc("GET /api/conversations/messages", ws.PreviousMessagesHandler)
 

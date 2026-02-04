@@ -15,8 +15,8 @@ func InsertUser(Username, Email, Password string) error {
 		return err
 	}
 
-	stmt := `INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)`
-	_, err = db.Exec(stmt, Username, Email, string(PasswordHash))
+	stmt := `INSERT INTO users (username, email, password_hash, is_online) VALUES (?, ?, ?, ?)`
+	_, err = db.Exec(stmt, Username, Email, string(PasswordHash), false)
 	return err
 }
 
@@ -148,8 +148,7 @@ type Contact struct {
 
 func GetContacts() ([]Contact, error) {
 	query := `
-		SELECT u.username,
-		       CASE WHEN s.username IS NOT NULL THEN true ELSE false END AS online
+		SELECT u.username, u.is_online
 		FROM users u
 		LEFT JOIN sessions s ON s.username = u.username
 	`

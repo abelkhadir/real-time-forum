@@ -3,6 +3,7 @@ package posts
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	db "real/backend/database"
 	"strconv"
@@ -56,4 +57,22 @@ func GetPostHandler(w http.ResponseWriter, r *http.Request) {
 		"success": true,
 		"post":    post,
 	})
+}
+
+func BroadcastOnlineUsers() {
+	usernames := make([]string, 0, len(clients))
+	for username := range clients {
+		usernames = append(usernames, username)
+	}
+
+	msg := map[string]interface{}{
+		"type":  "updatecontacts",
+		"users": usernames,
+	}
+
+	for _, client := range clients {
+		if err := client.Conn.WriteJSON(msg); err != nil {
+			log.Println("Failed to send updatecontacts to", client.Username, err)
+		}
+	}
 }

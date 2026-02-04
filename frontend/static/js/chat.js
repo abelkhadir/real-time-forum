@@ -1,7 +1,8 @@
 // WebSocket and Chat Functionality
-
 let selectedUser;
 let ws;
+
+const counter = document.querySelector(".notifications-counter");
 
 // Initialize WebSocket connection
 function initWebSocket() {
@@ -13,7 +14,6 @@ function initWebSocket() {
 
     ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
-        console.log("Message from", data.from, ":", data.msg);
         displayMessage(data);
     };
 
@@ -80,7 +80,6 @@ function sendMessage(msg) {
 
     if (ws && ws.readyState === WebSocket.OPEN) {
         const payload = {
-            from: "me",
             to: selectedUser,
             msg: msg,
         };
@@ -92,11 +91,13 @@ function sendMessage(msg) {
 }
 
 function displayMessage(data) {
-    console.log(data)
     const chatMessagesContainer = document.getElementById('chat-messages-container');
     if (!chatMessagesContainer) return;
 
     const msgDiv = document.createElement('div');
+    if (!data.from) {
+        data.from = "me";
+    }
     msgDiv.className = data.from === selectedUser ? 'msg msg-in' : 'msg msg-out';
     msgDiv.innerText = data.msg;
 

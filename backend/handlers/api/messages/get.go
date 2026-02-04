@@ -12,15 +12,15 @@ import (
 
 var upgrader = websocket.Upgrader{}
 
-type Client struct {
-	Username string
-	Conn     *websocket.Conn
-}
-
 type Message struct {
 	To   string `json:"to"`
 	From string `json:"from"`
 	Msg  string `json:"msg"`
+}
+
+type Client struct {
+	Username string
+	Conn     *websocket.Conn
 }
 
 var clients = make(map[string]*Client)
@@ -49,10 +49,14 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 	client := &Client{Username: username, Conn: conn}
 	clients[username] = client
 	log.Println("Client connected:", username)
+	db.AddOnline(username)
+	BroadcastUpdateContacts()
 
 	defer func() {
 		delete(clients, username)
 		conn.Close()
+		db.RemoveOnline(username)
+		BroadcastUpdateContacts()
 		log.Println("Client disconnected:", username)
 	}()
 
@@ -80,6 +84,24 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			log.Println("Target client not found:", msg.To)
+		}
+	}
+}
+
+func BroadcastOnlineUsers() {
+	usernames := make([]string, 0, len(clients))
+	for username := range clients {
+		usernames = append(usernames, username)
+	}
+
+	msg := map[string]interface{}{
+		"type":  "updatecontacts",
+		"users": usernames,
+	}
+
+	for _, client := range clients {
+		if err := client.Conn.WriteJSON(msg); err != nil {
+			log.Println("Failed to send updatecontacts to", client.Username, err)
 		}
 	}
 }
