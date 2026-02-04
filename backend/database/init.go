@@ -106,7 +106,6 @@ func Migrate() error {
 }
 
 func AddOnline(username string) error {
-
 	_, err := db.Exec("UPDATE users SET is_online = 1 WHERE username = ?", username)
 	return err
 }

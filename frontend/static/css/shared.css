@@ -34,11 +34,18 @@ img {
   height: auto;
 }
 
-.msg-out {
+.msg-in {
+  align-self: flex-end;
+  background: #000;
+  color: white;
+  border-bottom-left-radius: 4px;
+}
 
-  background: #44475a;
+.msg-out {
   align-self: flex-start;
-  border-left: 3px solid #8be9fd;
+  background: #f0f2f5;
+  color: black;
+  border-bottom-right-radius: 4px;
 }
 
 .msg {

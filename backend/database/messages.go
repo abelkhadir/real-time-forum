@@ -16,10 +16,11 @@ func SaveMessage(from, to, message string) error {
 }
 
 func ReadMessages(from, to string) ([]Message, error) {
-	rows, err := db.Query(`SELECT from_username, to_username, content FROM messages
-		WHERE (from_username = ? AND to_username = ?)
-		ORDER BY created_at ASC;
-	`, from, to)
+	rows, err := db.Query(`SELECT from_username, to_username, content FROM messages 
+        WHERE (from_username = ? AND to_username = ?) 
+           OR (from_username = ? AND to_username = ?)
+        ORDER BY created_at ASC;
+    `, from, to, to, from) // Pass both pairs
 	if err != nil {
 		return nil, err
 	}
@@ -33,6 +34,5 @@ func ReadMessages(from, to string) ([]Message, error) {
 		}
 		messages = append(messages, msg)
 	}
-
 	return messages, nil
 }

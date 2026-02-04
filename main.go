@@ -11,8 +11,8 @@ import (
 	"real/backend/handlers/api/auth/user"
 	"real/backend/handlers/api/comments"
 	"real/backend/handlers/api/home"
-	ws "real/backend/handlers/api/messages"
 	"real/backend/handlers/api/posts"
+	ws "real/backend/handlers/api/websocket"
 )
 
 func main() {
@@ -45,7 +45,7 @@ func main() {
 	mux.HandleFunc("POST /api/comments/create", login.CheckAuth(comments.CreateComment))
 	mux.HandleFunc("POST /api/comments/like", login.CheckAuth(comments.LikeComment))
 
-	mux.HandleFunc("GET /api/contacts", user.GetContactsHandler)
+	mux.HandleFunc("GET /api/me", user.GetMeHandler)
 
 	mux.HandleFunc("GET /ws", ws.WebSocketsHandler)
 	mux.HandleFunc("GET /api/conversations/messages", ws.PreviousMessagesHandler)

@@ -9,8 +9,12 @@ users should be using ws too
 make better looking username
 
 4 WS types = {
-    updateNotifs
-    UpdateMessages
+    UpdateNotifs
     UpdatePosts
-    UpdateContacts (show new online and offline)
+    FINISHED: UpdateMessages
+    FINISHED: UpdateContacts (show new online and offline)
 }
+
+
+add pagination
+add mutex

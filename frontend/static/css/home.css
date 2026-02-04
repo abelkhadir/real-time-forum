@@ -352,7 +352,7 @@ header {
 
 .offline-dot {
     background: #ccc;
-    
+
 }
 
 /* Chat Window (Hidden by default) */
@@ -388,24 +388,12 @@ header {
     gap: 10px;
 }
 
-.msg {
-    padding: 8px 12px;
-    border-radius: 18px;
-    max-width: 75%;
-    font-size: 14px;
+#chat-messages-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Space between messages */
 }
 
-.msg-in {
-    align-self: flex-start;
-    background: #f0f2f5;
-    color: black;
-}
-
-.msg-out {
-    align-self: flex-end;
-    background: var(--black);
-    color: white;
-}
 
 /* Responsive */
 @media (max-width: 768px) {

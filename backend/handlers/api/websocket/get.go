@@ -27,17 +27,14 @@ var clients = make(map[string]*Client)
 
 func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
+	var username string
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Unauthenticated"})
-		return
-	}
-
-	username, err := db.GetUserBySession(cookie.Value)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Unauthenticated"})
-		return
+		username = "guest"
+	} else {
+		username, err = db.GetUserBySession(cookie.Value)
+		if username == "" || err != nil {
+			username = "guest"
+		}
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -48,15 +45,19 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 
 	client := &Client{Username: username, Conn: conn}
 	clients[username] = client
+
 	log.Println("Client connected:", username)
-	db.AddOnline(username)
-	BroadcastUpdateContacts()
+
+	if username != "guest" {
+		db.AddOnline(username)
+	}
+	BroadcastContacts(username)
 
 	defer func() {
 		delete(clients, username)
 		conn.Close()
 		db.RemoveOnline(username)
-		BroadcastUpdateContacts()
+		BroadcastContacts(username)
 		log.Println("Client disconnected:", username)
 	}()
 
@@ -79,29 +80,26 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 		db.SaveMessage(msg.From, msg.To, msg.Msg)
 
 		if targetClient, ok := clients[msg.To]; ok {
-			if err := targetClient.Conn.WriteJSON(msg); err != nil {
+			if err := targetClient.Conn.WriteJSON(map[string]interface{}{
+				"type": "UpdateMessages",
+				"from": msg.From,
+				"msg":  msg.Msg,
+			}); err != nil {
 				log.Println("Write error:", err)
 			}
 		} else {
-			log.Println("Target client not found:", msg.To)
+			log.Println("Target client ot found:", msg.To)
 		}
 	}
 }
 
-func BroadcastOnlineUsers() {
-	usernames := make([]string, 0, len(clients))
-	for username := range clients {
-		usernames = append(usernames, username)
-	}
-
-	msg := map[string]interface{}{
-		"type":  "updatecontacts",
-		"users": usernames,
-	}
-
-	for _, client := range clients {
-		if err := client.Conn.WriteJSON(msg); err != nil {
-			log.Println("Failed to send updatecontacts to", client.Username, err)
-		}
+func BroadcastContacts(username string) {
+	contacts, _ := db.GetContacts()
+	for _, c := range clients {
+		c.Conn.WriteJSON(map[string]interface{}{
+			"type":     "UpdateContacts",
+			"contacts": contacts,
+			"username": username,
+		})
 	}
 }

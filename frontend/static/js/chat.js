@@ -1,30 +1,3 @@
-// WebSocket and Chat Functionality
-let selectedUser;
-let ws;
-
-const counter = document.querySelector(".notifications-counter");
-
-// Initialize WebSocket connection
-function initWebSocket() {
-    ws = new WebSocket(`ws://${window.location.host}/ws`);
-
-    ws.onopen = () => {
-        console.log("WebSocket connected");
-    };
-
-    ws.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-        displayMessage(data);
-    };
-
-    ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-    };
-
-    ws.onclose = () => {
-        console.log("WebSocket disconnected");
-    };
-}
 
 function openChat(username) {
     selectedUser = username;
@@ -95,10 +68,8 @@ function displayMessage(data) {
     if (!chatMessagesContainer) return;
 
     const msgDiv = document.createElement('div');
-    if (!data.from) {
-        data.from = "me";
-    }
-    msgDiv.className = data.from === selectedUser ? 'msg msg-in' : 'msg msg-out';
+    
+    msgDiv.className = data.from === selectedUser ? 'msg msg-out' : 'msg msg-in';
     msgDiv.innerText = data.msg;
 
     chatMessagesContainer.appendChild(msgDiv);
@@ -117,8 +88,9 @@ function prevMessages(id) {
     fetch(`/api/conversations/messages?id=${id}&limit=50`)
         .then(res => res.json())
         .then(data => {
-            console.log("Previous messages:", data.messages);
-            data.messages.forEach(msg => displayMessage(msg));
+            if (data.messages && data.messages.length > 0) {
+                data.messages.forEach(msg => displayMessage(msg));
+            }
         })
         .catch(err => console.error("Failed to load messages:", err));
 }

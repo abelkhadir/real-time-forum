@@ -3,10 +3,13 @@ function loadContacts(contacts, username) {
         return;
     }
 
+    console.log("Loading contacts:", contacts);
+    console.log("Loading usernmae:", username);
+
     let posts = 0
 
     const div = document.getElementById("friends-list");
-    div.innerHTML = ""; // optional: clear old list
+    div.innerHTML = ""; //  clear old list
 
     contacts.forEach(contact => {
         if (username && contact.Username === username) return;
@@ -30,11 +33,10 @@ function loadContacts(contacts, username) {
     if (posts === 0) {
         div.innerHTML = `<div class="no-contacts"><p>No contacts available.</p></div>`;
     }
-
 }
 
 function loadUser() {
-    fetch("/api/contacts")
+    fetch("/api/me")
         .then(res => res.json())
         .then(data => {
             if (data.success) {
@@ -47,8 +49,6 @@ function loadUser() {
                     document.getElementById("auth-btns").classList.add("hidden");
                     document.getElementById("unauth-btns").classList.remove("hidden");
                 }
-
-                loadContacts(data.contacts, data.username);
             } else {
                 document.getElementById("logout").classList.add("hidden");
                 document.getElementById("auth-btns").classList.remove("hidden");
@@ -56,6 +56,7 @@ function loadUser() {
         })
         .catch(e => console.error(e));
 }
+
 
 const menu = document.getElementById("menu-dropdown");
 const notifMenu = document.getElementById("notif-menu");
