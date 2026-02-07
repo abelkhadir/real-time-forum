@@ -69,34 +69,10 @@ function renderComments(comments) {
       <div style="font-weight: bold; font-size: 14px;">${comment.username}</div>
       <div style="font-size: 12px; color: #666;">${new Date(comment.created_at).toLocaleString()}</div>
       <div style="margin-top: 5px;">${comment.content}</div>
-      <div style="font-size: 12px; color: #999; margin-top: 5px;">👍 ${comment.likes_count} • 👎 ${comment.dislikes_count}</div>
     </div>
   `).join("");
 }
-function likeComment(commentId) {
-  voteComment(commentId, true);
-}
 
-function dislikeComment(commentId) {
-  voteComment(commentId, false);
-}
-
-function voteComment(commentId, isLike) {
-  fetch("/api/comments/like", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      comment_id: commentId,
-      is_like: isLike
-    }),
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      loadComments(currentPostId);
-    }
-  });
-}
 function renderComments(comments) {
   const container = document.getElementById("comments-container");
   if (!container) return;
@@ -118,21 +94,6 @@ function renderComments(comments) {
 
       <div style="display: flex; gap: 10px; align-items: center;">
         
-        <button 
-          onclick="likeComment(${comment.id})" 
-          style="cursor: pointer; background: white; border: 1px solid #ccc; border-radius: 4px; padding: 4px 10px; font-size: 12px; display: flex; align-items: center; gap: 5px; transition: background 0.2s;"
-          onmouseover="this.style.background='#717070'" 
-          onmouseout="this.style.background='white'">
-          👍 <span>${comment.likes_count || 0}</span>
-        </button>
-
-        <button 
-          onclick="dislikeComment(${comment.id})" 
-          style="cursor: pointer; background: white; border: 1px solid #ccc; border-radius: 4px; padding: 4px 10px; font-size: 12px; display: flex; align-items: center; gap: 5px; transition: background 0.2s;"
-          onmouseover="this.style.background='#717070'" 
-          onmouseout="this.style.background='white'">
-          👎 <span>${comment.dislikes_count || 0}</span>
-        </button>
 
       </div>
     </div>

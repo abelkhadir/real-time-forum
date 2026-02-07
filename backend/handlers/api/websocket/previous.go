@@ -2,8 +2,8 @@ package ws
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"strconv"
 
 	db "real/backend/database"
 )
@@ -25,8 +25,16 @@ func PreviousMessagesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messages, err := db.ReadMessages(username, r.URL.Query().Get("id"))
-	fmt.Println(messages)
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+	if limit < 1 {
+		limit = 10
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	messages, err := db.ReadMessagesPaged(username, r.URL.Query().Get("id"), limit, offset)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Could not retrieve messages"})

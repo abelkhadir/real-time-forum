@@ -389,6 +389,11 @@ header {
     background: #f0f0f0;
 }
 
+.chat-close {
+    margin-left: auto;
+    display: none;
+}
+
 .chat-messages {
     flex: 1;
     overflow-y: auto;
@@ -436,6 +441,12 @@ header {
     /* Button to show chat on mobile */
     #mobile-chat-btn {
         display: block !important;
+    }
+
+    .chat-close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 

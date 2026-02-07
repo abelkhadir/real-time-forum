@@ -1,4 +1,3 @@
-
 function openChat(username) {
     selectedUser = username;
 
@@ -12,7 +11,8 @@ function openChat(username) {
     const chatMessagesContainer = document.getElementById('chat-messages-container');
     chatMessagesContainer.innerHTML = '';
 
-    prevMessages(username);
+    initMessagePagination();
+    loadMessages(true);
 
     // Switch Sidebar Views
     document.getElementById('friends-list').classList.add('hidden');
@@ -67,6 +67,10 @@ function sendMessage(msg) {
 }
 
 function displayMessage(data) {
+    renderMessage(data, { prepend: false, keepScroll: false });
+}
+
+function renderMessage(data, { prepend, keepScroll }) {
     const chatMessagesContainer = document.getElementById('chat-messages-container');
     if (!chatMessagesContainer) return;
 
@@ -75,8 +79,17 @@ function displayMessage(data) {
     msgDiv.className = data.from === selectedUser ? 'msg msg-out' : 'msg msg-in';
     msgDiv.innerText = data.msg;
 
-    chatMessagesContainer.appendChild(msgDiv);
-    chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+    if (prepend) {
+        const prevHeight = chatMessagesContainer.scrollHeight;
+        chatMessagesContainer.prepend(msgDiv);
+        if (keepScroll) {
+            const newHeight = chatMessagesContainer.scrollHeight;
+            chatMessagesContainer.scrollTop += newHeight - prevHeight;
+        }
+    } else {
+        chatMessagesContainer.appendChild(msgDiv);
+        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+    }
 }
 
 function sendMessageFromButton() {
@@ -87,13 +100,102 @@ function sendMessageFromButton() {
     }
 }
 
-function prevMessages(id) {
-    fetch(`/api/conversations/messages?id=${id}&limit=50`)
+const MESSAGES_PAGE_SIZE = 10;
+let messagesOffset = 0;
+let messagesLoading = false;
+let messagesHasMore = true;
+let messagesScrollHandler = null;
+
+function initMessagePagination() {
+    messagesOffset = 0;
+    messagesLoading = false;
+    messagesHasMore = true;
+
+    const container = document.getElementById('chat-messages-container');
+    if (!container) return;
+    if (messagesScrollHandler) {
+        container.removeEventListener("scroll", messagesScrollHandler);
+    }
+    messagesScrollHandler = throttle(() => {
+        if (messagesLoading || !messagesHasMore) return;
+        if (container.scrollTop <= 30) {
+            loadMessages(false);
+        }
+    }, 300);
+    container.addEventListener("scroll", messagesScrollHandler);
+}
+
+function loadMessages(reset) {
+    if (!selectedUser || messagesLoading) return;
+    messagesLoading = true;
+
+    const offset = reset ? 0 : messagesOffset;
+    fetch(`/api/conversations/messages?id=${selectedUser}&limit=${MESSAGES_PAGE_SIZE}&offset=${offset}`)
         .then(res => res.json())
         .then(data => {
+            if (reset) {
+                const container = document.getElementById('chat-messages-container');
+                if (container) container.innerHTML = "";
+                messagesOffset = 0;
+                messagesHasMore = true;
+            }
+
             if (data.messages && data.messages.length > 0) {
-                data.messages.forEach(msg => displayMessage(msg));
+                const msgs = data.messages.slice().reverse();
+                const container = document.getElementById('chat-messages-container');
+                const fragment = document.createDocumentFragment();
+                msgs.forEach(msg => {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = msg.from === selectedUser ? 'msg msg-out' : 'msg msg-in';
+                    msgDiv.innerText = msg.msg;
+                    fragment.appendChild(msgDiv);
+                });
+
+                if (container) {
+                    if (reset) {
+                        container.appendChild(fragment);
+                        container.scrollTop = container.scrollHeight;
+                    } else {
+                        const prevHeight = container.scrollHeight;
+                        container.prepend(fragment);
+                        const newHeight = container.scrollHeight;
+                        container.scrollTop += newHeight - prevHeight;
+                    }
+                }
+
+                messagesOffset += data.messages.length;
+                if (data.messages.length < MESSAGES_PAGE_SIZE) {
+                    messagesHasMore = false;
+                }
+            } else {
+                messagesHasMore = false;
             }
         })
-        .catch(err => console.error("Failed to load messages:", err));
+        .catch(err => console.error("Failed to load messages:", err))
+        .finally(() => {
+            messagesLoading = false;
+        });
+}
+
+function throttle(fn, wait) {
+    let last = 0;
+    let timeout = null;
+    return function (...args) {
+        const now = Date.now();
+        const remaining = wait - (now - last);
+        if (remaining <= 0) {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+            last = now;
+            fn.apply(this, args);
+        } else if (!timeout) {
+            timeout = setTimeout(() => {
+                last = Date.now();
+                timeout = null;
+                fn.apply(this, args);
+            }, remaining);
+        }
+    };
 }

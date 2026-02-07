@@ -103,8 +103,6 @@ function buildPostCard(post) {
     div.className = "post-card";
     div.onclick = () => openPost(post.ID || post.id);
     const comments = post.Comments_num;
-    const likes = post.Likes_num || post.likes_count || 0;
-    const dislikes = post.Dislikes_num || post.dislikes_count || 0;
     const cats = post.Categories || [];
 
     div.innerHTML = `
@@ -120,7 +118,7 @@ function buildPostCard(post) {
         <div class="post-body">${post.Title}</div>
         <div class="post-stats">
             <span class="stats-left">
-                ${comments} Comments • ${likes} Likes • ${dislikes} Dislikes 
+                ${comments} Comments
             </span>
             <span class="stats-right">
                 ${cats.join(" • ")}
@@ -172,8 +170,6 @@ function renderPostDetail(post) {
     currentPostId = post.ID || post.id;
   console.log(post);
     const comments = post.Comments_num || post.comments_count || 0;
-    const likes = post.Likes_num || post.likes_count || 0;
-    const dislikes = post.Dislikes_num || post.dislikes_count || 0;
     const cats = post.Categories || [];
 
     container.innerHTML = `
@@ -197,13 +193,8 @@ function renderPostDetail(post) {
     </div>
 
     <div class="post-stats">
-      <span>${comments} Comments • ${likes} Likes • ${dislikes} Dislikes</span>
+      <span>${comments} Comments</span>
       <span>${cats.join(" • ")}</span>
-    </div>
-
-    <div style="display: flex; gap: 10px; margin: 15px 0;">
-      <button class="btn btn-primary" onclick="likePost(${currentPostId})">👍 Like</button>
-      <button class="btn btn-primary" onclick="dislikePost(${currentPostId})">👎 Dislike</button>
     </div>
 
     <div class="comment-section">
@@ -219,32 +210,6 @@ function renderPostDetail(post) {
     `;
 
     loadComments(currentPostId);
-}
-
-function likePost(postId) {
-    votePost(postId, true);
-}
-
-function dislikePost(postId) {
-    votePost(postId, false);
-}
-
-function votePost(postId, isLike) {
-    fetch("/api/posts/like", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            post_id: postId,
-            is_like: isLike
-        }),
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            showToast("green", isLike ? "Liked!" : "Disliked!");
-            refreshCurrentPost();
-        }
-    });
 }
 
 function refreshCurrentPost() {

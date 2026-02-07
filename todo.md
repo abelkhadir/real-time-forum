@@ -1,4 +1,2 @@
-when clicking like/commenting as unauthenticated, show use showToast("Error", "message")
-filter by categories
-add pagination
-add mutex
+when clicking commenting as unauthenticated, show use showToast("Error", "message")
+add x button to chat on mobine, make it better 

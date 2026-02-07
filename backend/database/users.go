@@ -9,7 +9,6 @@ import (
 )
 
 func InsertUser(Username, Email, Password string) error {
-	fmt.Println(Username, Email, Password)
 	PasswordHash, err := bcrypt.GenerateFromPassword([]byte(Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err

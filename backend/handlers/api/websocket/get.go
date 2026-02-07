@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
 
 	db "real/backend/database"
 
@@ -23,7 +24,10 @@ type Client struct {
 	Conn     *websocket.Conn
 }
 
-var clients = make(map[string]*Client)
+var (
+	clients   = make(map[string]*Client)
+	clientsMu sync.RWMutex
+)
 
 func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
@@ -44,9 +48,9 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := &Client{Username: username, Conn: conn}
+	clientsMu.Lock()
 	clients[username] = client
-
-	log.Println("Client connected:", username)
+	clientsMu.Unlock()
 
 	if username != "guest" {
 		db.AddOnline(username)
@@ -54,7 +58,9 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 	BroadcastContacts(username)
 
 	defer func() {
+		clientsMu.Lock()
 		delete(clients, username)
+		clientsMu.Unlock()
 		conn.Close()
 		db.RemoveOnline(username)
 		BroadcastContacts(username)
@@ -82,7 +88,10 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 			db.AddNotification(msg.To, msg.From, msg.Msg)
 		}
 
-		if targetClient, ok := clients[msg.To]; ok {
+		clientsMu.RLock()
+		targetClient, ok := clients[msg.To]
+		clientsMu.RUnlock()
+		if ok {
 			if err := targetClient.Conn.WriteJSON(map[string]interface{}{
 				"type": "UpdateMessages",
 				"from": msg.From,
@@ -98,6 +107,8 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 
 func BroadcastContacts(username string) {
 	contacts, _ := db.GetContacts()
+	clientsMu.RLock()
+	defer clientsMu.RUnlock()
 	for _, c := range clients {
 		c.Conn.WriteJSON(map[string]interface{}{
 			"type":     "UpdateContacts",
@@ -108,6 +119,8 @@ func BroadcastContacts(username string) {
 }
 
 func BroadcastPost(post db.Post) {
+	clientsMu.RLock()
+	defer clientsMu.RUnlock()
 	for _, c := range clients {
 		c.Conn.WriteJSON(map[string]interface{}{
 			"type": "UpdatePosts",

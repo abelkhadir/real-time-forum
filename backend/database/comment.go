@@ -7,8 +7,6 @@ type Comment struct {
 	UserID    int    `json:"user_id"`
 	Username  string `json:"username"`
 	Content   string `json:"content"`
-	Likes     int    `json:"likes_count"`
-	Dislikes  int    `json:"dislikes_count"`
 	CreatedAt string `json:"created_at"`
 }
 
@@ -17,10 +15,7 @@ func GetCommentsByPost(postID int) ([]Comment, error) {
 	var comments []Comment
 
 	rows, err := db.Query(`
-		SELECT id, post_id, user_id, username, content, 
-		       (SELECT COUNT(*) FROM comment_likes WHERE comment_id = c.id AND is_like = 1),
-		       (SELECT COUNT(*) FROM comment_likes WHERE comment_id = c.id AND is_like = 0),
-		       created_at
+		SELECT id, post_id, user_id, username, content, created_at
 		FROM comments c
 		WHERE post_id = ?
 		ORDER BY created_at DESC
@@ -33,7 +28,7 @@ func GetCommentsByPost(postID int) ([]Comment, error) {
 	for rows.Next() {
 		var c Comment
 		if err := rows.Scan(&c.ID, &c.PostID, &c.UserID, &c.Username, &c.Content,
-			&c.Likes, &c.Dislikes, &c.CreatedAt); err != nil {
+			&c.CreatedAt); err != nil {
 			continue
 		}
 
@@ -49,15 +44,15 @@ func GetComment(commentID int) (Comment, error) {
 
 	row := db.QueryRow(`
 		SELECT id, post_id, user_id, username, content,
-		       (SELECT COUNT(*) FROM comment_likes WHERE comment_id = c.id AND is_like = 1),
-		       (SELECT COUNT(*) FROM comment_likes WHERE comment_id = c.id AND is_like = 0),
+		       0,
+		       0,
 		       created_at
 		FROM comments c
 		WHERE id = ?
 	`, commentID)
 
 	err := row.Scan(&c.ID, &c.PostID, &c.UserID, &c.Username, &c.Content,
-		&c.Likes, &c.Dislikes, &c.CreatedAt)
+		&c.CreatedAt)
 	if err != nil {
 		return Comment{}, err
 	}
@@ -68,8 +63,8 @@ func GetComment(commentID int) (Comment, error) {
 // InsertComment adds a new comment and returns the comment ID
 func InsertComment(postID int, userID int, username, content string) (int64, error) {
 	result, err := db.Exec(
-		`INSERT INTO comments (post_id, user_id, username, content, likes_count, dislikes_count)
-		 VALUES (?, ?, ?, ?, 0, 0)`,
+		`INSERT INTO comments (post_id, user_id, username, content)
+		 VALUES (?, ?, ?, ?)`,
 		postID, userID, username, content,
 	)
 	if err != nil {
@@ -78,9 +73,9 @@ func InsertComment(postID int, userID int, username, content string) (int64, err
 
 	// Update post comment count
 	_, err = db.Exec(
-    `UPDATE posts SET comments_num = comments_num + 1 WHERE id = ?`,
-    postID,
-)
+		`UPDATE posts SET comments_num = comments_num + 1 WHERE id = ?`,
+		postID,
+	)
 	if err != nil {
 		return 0, err
 	}
@@ -108,42 +103,5 @@ func DeleteComment(commentID int) error {
 		`UPDATE posts SET comments_num = comments_num - 1 WHERE id = ?`,
 		postID,
 	)
-	return err
-}
-
-// UpdateCommentLike updates or creates a like/dislike for a comment
-func UpdateCommentLike(userID, commentID int, isLike bool) error {
-
-	var existing *bool
-
-	err := db.QueryRow(`
-        SELECT is_like FROM comment_likes
-        WHERE user_id = ? AND comment_id = ?`,
-		userID, commentID).Scan(&existing)
-
-	if err != nil {
-		_, err = db.Exec(`
-            INSERT INTO comment_likes(user_id, comment_id, is_like)
-            VALUES (?, ?, ?)`,
-			userID, commentID, isLike)
-
-		return err
-	}
-
-	if *existing == isLike {
-		_, err = db.Exec(`
-            DELETE FROM comment_likes
-            WHERE user_id = ? AND comment_id = ?`,
-			userID, commentID)
-
-		return err
-	}
-
-	_, err = db.Exec(`
-        UPDATE comment_likes
-        SET is_like = ?
-        WHERE user_id = ? AND comment_id = ?`,
-		isLike, userID, commentID)
-
 	return err
 }
