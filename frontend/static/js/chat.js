@@ -4,6 +4,9 @@ function openChat(username) {
 
     // Set User Name
     document.getElementById('chat-username').innerText = username;
+    if (typeof setChatStatusByUsername === "function") {
+        setChatStatusByUsername(username);
+    }
 
     // Clear previous messages
     const chatMessagesContainer = document.getElementById('chat-messages-container');

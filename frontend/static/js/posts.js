@@ -31,6 +31,10 @@ function expandPostCreationArea() {
             .map(b => b.dataset.cat);
 
         if (!content) return;
+        if (selectedCats.length === 0) {
+            showToast("red", "Select at least one category");
+            return;
+        }
 
         createPost(titleText, content, selectedCats);
 
@@ -90,16 +94,20 @@ function renderPosts(posts) {
     container.innerHTML = "";
 
     posts.forEach(post => {
-        const div = document.createElement("div");
-        div.className = "post-card";
-        div.onclick = () => openPost(post.ID || post.id);
-        console.log(posts);
-        const comments = post.Comments_num ;
-        const likes = post.Likes_num || post.likes_count || 0;
-        const dislikes = post.Dislikes_num || post.dislikes_count || 0;
-        const cats = post.Categories || [];
+        container.appendChild(buildPostCard(post));
+    });
+}
 
-        div.innerHTML = `
+function buildPostCard(post) {
+    const div = document.createElement("div");
+    div.className = "post-card";
+    div.onclick = () => openPost(post.ID || post.id);
+    const comments = post.Comments_num;
+    const likes = post.Likes_num || post.likes_count || 0;
+    const dislikes = post.Dislikes_num || post.dislikes_count || 0;
+    const cats = post.Categories || [];
+
+    div.innerHTML = `
         <div class="post-header">
             <div class="avatar">
                 <img style="width: 40px" id="avatar" src="/static/images/avatar-white.png">
@@ -120,8 +128,15 @@ function renderPosts(posts) {
         </div>
     `;
 
-        container.appendChild(div);
-    });
+    return div;
+}
+
+function addPostToFeed(post) {
+    console.log("Adding new post to feed:", post);
+    const container = document.getElementById("posts-container");
+    if (!container) return;
+    const card = buildPostCard(post);
+    container.prepend(card);
 }
 
 async function openPost(id) {

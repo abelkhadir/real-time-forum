@@ -7,6 +7,7 @@ import (
 	"time"
 
 	db "real/backend/database"
+	ws "real/backend/handlers/api/websocket"
 
 	"github.com/gofrs/uuid"
 )
@@ -95,9 +96,15 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	username, _ := db.GetUserBySession(cookie.Value)
+
 	db.DeleteSess(cookie.Value)
 
 	// 2. Mse7 session mn Database
+	if username != "" {
+		_ = db.RemoveOnline(username)
+		ws.BroadcastContacts(username)
+	}
 
 	// 3. 9tel l-Cookie f Browser (Set expired date)
 	http.SetCookie(w, &http.Cookie{

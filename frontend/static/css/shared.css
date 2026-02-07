@@ -215,6 +215,8 @@ img {
 .notifications-container {
   display: flex;
   flex-direction: column;
+  max-height: 264px;
+  overflow-y: auto;
 }
 
 .notification-item {

@@ -2,10 +2,10 @@ package db
 
 import "strings"
 
-func InsertPost(username, title, content string, categories []string) error {
+func InsertPost(username, title, content string, categories []string) (int64, error) {
 	tx, err := db.Begin()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer tx.Rollback()
 
@@ -14,7 +14,7 @@ func InsertPost(username, title, content string, categories []string) error {
         VALUES (?, ?, ?)
     `, username, title, content)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	postID, _ := res.LastInsertId()
@@ -23,24 +23,27 @@ func InsertPost(username, title, content string, categories []string) error {
 		// Insert category if not exists
 		_, err := tx.Exec(`INSERT OR IGNORE INTO categories(name) VALUES(?)`, cat)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		// Get category id
 		var catID int64
 		err = tx.QueryRow(`SELECT id FROM categories WHERE name = ?`, cat).Scan(&catID)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		// Link post -> category
 		_, err = tx.Exec(`INSERT INTO post_categories(post_id, category_id) VALUES(?, ?)`, postID, catID)
 		if err != nil {
-			return err
+			return 0, err
 		}
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	return postID, nil
 }
 
 type Post struct {

@@ -6,12 +6,22 @@ import (
 	"net/http"
 
 	db "real/backend/database"
+	ws "real/backend/handlers/api/websocket"
 )
 
 type PostReq struct {
 	PostTitle      string   `json:"title"`
 	PostContent    string   `json:"content"`
 	PostCategories []string `json:"categories"`
+}
+
+var allowedCategories = map[string]struct{}{
+	"general":   {},
+	"news":      {},
+	"tech":      {},
+	"sports":    {},
+	"gaming":    {},
+	"lifestyle": {},
 }
 
 func CreatePost(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +49,20 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.InsertPost(username, req.PostTitle, req.PostContent, req.PostCategories)
+	if len(req.PostCategories) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "At least one category is required"})
+		return
+	}
+	for _, c := range req.PostCategories {
+		if _, ok := allowedCategories[c]; !ok {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Invalid category"})
+			return
+		}
+	}
+
+	postID, err := db.InsertPost(username, req.PostTitle, req.PostContent, req.PostCategories)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -48,6 +71,11 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 			"error":   "Database insertion failed",
 		})
 		return
+	}
+
+	post, err := db.GetPost(int(postID))
+	if err == nil {
+		ws.BroadcastPost(post)
 	}
 
 	json.NewEncoder(w).Encode(map[string]any{

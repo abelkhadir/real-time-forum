@@ -4,6 +4,7 @@ function initApp() {
 
     // Load user info and contacts
     loadUser();
+    fetchNotifications();
 
     // Setup post creation UI
     expandPostCreationArea();

@@ -367,8 +367,26 @@ header {
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
+    gap: 8px;
     background: #fff;
     font-weight: bold;
+}
+
+.chat-status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+.chat-status.online {
+    color: #1b5e20;
+    background: #e7f6eb;
+}
+
+.chat-status.offline {
+    color: #616161;
+    background: #f0f0f0;
 }
 
 .chat-messages {

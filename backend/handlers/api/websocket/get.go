@@ -78,6 +78,9 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 		msg.From = username
 
 		db.SaveMessage(msg.From, msg.To, msg.Msg)
+		if msg.To != "" && msg.To != "guest" && msg.From != "guest" {
+			db.AddNotification(msg.To, msg.From, msg.Msg)
+		}
 
 		if targetClient, ok := clients[msg.To]; ok {
 			if err := targetClient.Conn.WriteJSON(map[string]interface{}{
@@ -99,7 +102,16 @@ func BroadcastContacts(username string) {
 		c.Conn.WriteJSON(map[string]interface{}{
 			"type":     "UpdateContacts",
 			"contacts": contacts,
-			"username": username,
+			"username": c.Username,
+		})
+	}
+}
+
+func BroadcastPost(post db.Post) {
+	for _, c := range clients {
+		c.Conn.WriteJSON(map[string]interface{}{
+			"type": "UpdatePosts",
+			"post": post,
 		})
 	}
 }
