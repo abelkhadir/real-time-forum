@@ -81,7 +81,7 @@ function createPost(title, content, categories) {
                 showToast("red", `Couldnt create post: ${data.error}`);
             }
         })
-        .catch(err => console.log(err));
+    .catch(err => `Login to create post`);
 }
 
 function getPosts(page = 1) {
@@ -157,7 +157,6 @@ async function openPost(id) {
         document.getElementById("feed-view").classList.add("hidden");
         document.getElementById("post-view").classList.remove("hidden");
     } catch (err) {
-        console.log(err)
         showToast("red", "Network error");
     }
 }

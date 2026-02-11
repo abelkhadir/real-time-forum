@@ -1,5 +1,3 @@
-// Comment Management Functions
-
 function submitComment() {
   const input = document.getElementById("commentInput");
   const commentText = input.value.trim();
@@ -34,8 +32,7 @@ function submitComment() {
       }
     })
     .catch(err => {
-      console.log(err);
-      showToast("red", "Network error");
+      showToast("red", "Login to comment");
     });
 }
 
@@ -50,7 +47,6 @@ function loadComments(postId) {
       }
     })
     .catch(err => {
-      console.log(err);
       showToast("red", "Network error");
     });
 }

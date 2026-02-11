@@ -1,6 +1,6 @@
 function openChat(username) {
-    if (!currentUsername){
-              showToast("red", "login to open chat");
+    if (!currentUsername) {
+        showToast("red", "login to open chat");
         return;
     }
     selectedUser = username;
@@ -79,7 +79,7 @@ function renderMessage(data, { prepend, keepScroll }) {
     if (!chatMessagesContainer) return;
 
     const msgDiv = document.createElement('div');
-    
+
     msgDiv.className = data.from === selectedUser ? 'msg msg-out' : 'msg msg-in';
     msgDiv.innerText = data.msg;
 

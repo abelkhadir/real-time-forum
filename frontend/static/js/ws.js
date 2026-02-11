@@ -84,9 +84,7 @@ function fetchNotifications() {
 function initWebSocket() {
     ws = new WebSocket(`ws://${window.location.host}/ws`);
 
-    ws.onopen = () => {
-        console.log("WebSocket connected");
-    };
+    ws.onopen = () => {};
 
     ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
@@ -106,7 +104,6 @@ function initWebSocket() {
         }
 
         if (data.type === "UpdatePosts") {
-            console.log("Received post update via WebSocket:", data);
             if (data.post) {
                 addPostToFeed(data.post);
             }
@@ -125,10 +122,7 @@ function initWebSocket() {
         console.error("WebSocket error:", error);
     };
 
-    ws.onclose = () => {
-        console.log("WebSocket disconnected");
-    };
+    ws.onclose = () => {};
 };
 
-renderNotifications();
 updateCounter();
