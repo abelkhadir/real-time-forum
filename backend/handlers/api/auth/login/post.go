@@ -121,52 +121,25 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
-// CheckAuth Middleware
-// Ay route ghat-dwr 3liha had fonction, maghadich tkhdem illa ila kan user m-connecté
-func CheckAuth(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		next(w, r)
-	}
-	/*
+	func CheckAuth(next http.HandlerFunc) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        c, err := r.Cookie("session_token")
+        if err != nil {
+            if err == http.ErrNoCookie {
+                http.Error(w, "Unauthorized", http.StatusUnauthorized)
+                return
+            }
+            http.Error(w, "Bad request", http.StatusBadRequest)
+            return
+        }
 
-		return func(w http.ResponseWriter, r *http.Request) {
-			// 1. Jib Cookie
-			c, err := r.Cookie("session_token")
-			if err != nil {
-				if err == http.ErrNoCookie {
-					// Ma3ndoch cookie -> Error 401
-					http.Error(w, "Unauthorized", http.StatusUnauthorized)
-					return
-				}
-				http.Error(w, "Bad request", http.StatusBadRequest)
-				return
-			}
+        _, err = db.GetUserBySession(c.Value)
+        if err != nil {
+            http.Error(w, "Unauthorized", http.StatusUnauthorized)
+            return
+        }
 
-			sessionToken := c.Value
-
-			// 2. Verifier wach had token kayn f DB w ma-mitsh (Expired)
-			var userID int
-			var expiry time.Time
-
-			row := database.Db.QueryRow("SELECT user_id, expiry FROM sessions WHERE token = ?", sessionToken)
-			err = row.Scan(&userID, &expiry)
-			if err != nil {
-				http.Error(w, "Unauthorized (Invalid Token)", http.StatusUnauthorized)
-				return
-			}
-
-			// 3. Check Expiry
-			if expiry.Before(time.Now()) {
-				database.Db.Exec("DELETE FROM sessions WHERE token = ?", sessionToken)
-				http.Error(w, "Session expired", http.StatusUnauthorized)
-				return
-			}
-
-			// Hna tqder tzid userID f Context ila bghiti tsta3mlo mn b3d
-			// ...
-
-			// User Clean -> Doz l-fonction l-asliya
-			next(w, r)
-		}
-	*/
+        next(w, r)
+    }
 }
+

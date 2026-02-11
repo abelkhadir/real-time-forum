@@ -196,6 +196,7 @@ header {
 }
 
 .logo {
+    cursor: pointer;
     font-size: 24px;
     font-weight: 900;
     letter-spacing: -1px;
@@ -536,6 +537,7 @@ h3 {
 
 
 .forgot {
+    display: none;
     text-align: right;
 }
 

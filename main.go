@@ -44,12 +44,12 @@ func main() {
 	mux.HandleFunc("GET /api/comments", comments.GetComments)
 	mux.HandleFunc("POST /api/comments/create", login.CheckAuth(comments.CreateComment))
 
-	mux.HandleFunc("GET /api/me", user.GetMeHandler)
+	mux.HandleFunc("GET /api/me", login.CheckAuth(user.GetMeHandler))
 	mux.HandleFunc("GET /api/notifications", notifications.GetNotifications)
 	mux.HandleFunc("POST /api/notifications/read", notifications.MarkRead)
 
 	mux.HandleFunc("GET /ws", ws.WebSocketsHandler)
-	mux.HandleFunc("GET /api/conversations/messages", ws.PreviousMessagesHandler)
+	mux.HandleFunc("GET /api/conversations/messages", login.CheckAuth(ws.PreviousMessagesHandler))
 
 	// frontend (HTML, CSS, JS)
 	fs := http.FileServer(http.Dir("./frontend/static"))

@@ -43,9 +43,9 @@ function openLoginPopup() {
             <input type="identifier" placeholder="Email or Username" required>
             <input type="password" placeholder="Password" required>
             <button type="submit" class="btn btn-primary">Log in now</button>
-            <div class="forgot"> 
+         <!--   <div class="forgot"> 
                 <p><span onclick="">Forgot your password?</span></p>
-            </div>
+            </div> -->
         </form>
     </div>
     `;
