@@ -16,12 +16,10 @@ type PostReq struct {
 }
 
 var allowedCategories = map[string]struct{}{
-	"general":   {},
-	"news":      {},
-	"tech":      {},
-	"sports":    {},
-	"gaming":    {},
-	"lifestyle": {},
+	"news":   {},
+	"tech":   {},
+	"sports": {},
+	"gaming": {},
 }
 
 func CreatePost(w http.ResponseWriter, r *http.Request) {

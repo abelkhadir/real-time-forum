@@ -57,6 +57,7 @@ function expandPostCreationArea() {
             if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 submit();
+                post.blur();
             }
         });
     });

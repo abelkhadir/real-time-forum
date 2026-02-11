@@ -18,7 +18,7 @@ function loadContacts(contacts) {
     }
 
     lastContacts = contacts;
-        const selfUsername = currentUsername;
+    const selfUsername = currentUsername || username || "";
 
     let posts = 0
 
@@ -34,7 +34,7 @@ function loadContacts(contacts) {
         friend.className = "friends-item";
         const statusClass = contact.Online ? "online-dot" : "offline-dot";
         friend.innerHTML = `
-        <div class="friend-item" onclick="openChat('${contact.Username,selfUsername}')">
+        <div class="friend-item" onclick="openChat('${contact.Username}')">
             <div class="avatar">
                 <img id="avatar" src="/static/images/avatar-white.png">
             </div>
@@ -81,7 +81,6 @@ function loadUser() {
         })
         .catch(e => console.error(e));
 }
-
 
 const menu = document.getElementById("menu-dropdown");
 const notifMenu = document.getElementById("notif-menu");
