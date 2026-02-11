@@ -37,7 +37,7 @@ function loadContacts(contacts, username) {
         friend.className = "friends-item";
         const statusClass = contact.Online ? "online-dot" : "offline-dot";
         friend.innerHTML = `
-        <div class="friend-item" onclick="openChat('${contact.Username}')">
+        <div class="friend-item" onclick="openChat('${contact.Username,selfUsername}')">
             <div class="avatar">
                 <img id="avatar" src="/static/images/avatar-white.png">
             </div>

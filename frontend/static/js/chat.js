@@ -1,4 +1,8 @@
 function openChat(username) {
+    if (!currentUsername){
+              showToast("red", "login to open chat");
+        return;
+    }
     selectedUser = username;
 
     // Set User Name

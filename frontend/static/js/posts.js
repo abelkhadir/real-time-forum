@@ -12,7 +12,15 @@ function expandPostCreationArea() {
         });
     });
 
-    post.addEventListener("focus", () => box.classList.add("expanded"));
+    post.addEventListener("focus", () => {
+        if (!currentUsername) {
+            showToast("red", "login to create post");
+            post.blur();
+            return;
+        }
+
+        box.classList.add("expanded")
+    });
 
     box.addEventListener("focusout", (e) => {
         setTimeout(() => {
@@ -64,29 +72,29 @@ function createPost(title, content, categories) {
             categories: categories
         }),
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            showToast("green", "Post Created successfully");
-            getPosts()
-        } else {
-            showToast("red", `Couldnt create post: ${data.error}`);
-        }
-    })
-    .catch(err => console.log(err));
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast("green", "Post Created successfully");
+                getPosts()
+            } else {
+                showToast("red", `Couldnt create post: ${data.error}`);
+            }
+        })
+        .catch(err => console.log(err));
 }
 
 function getPosts(page = 1) {
     fetch(`/api/posts?page=${page}`)
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            renderPosts(data.posts);
-        } else {
-            showToast("red", "couldn't load posts");
-        }
-    })
-    .catch(err => console.log(err));
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                renderPosts(data.posts);
+            } else {
+                showToast("red", "couldn't load posts");
+            }
+        })
+        .catch(err => console.log(err));
 }
 
 function renderPosts(posts) {
@@ -168,7 +176,7 @@ function setCurrentPostId(postId) {
 function renderPostDetail(post) {
     const container = document.getElementById("post-detail-container");
     currentPostId = post.ID || post.id;
-  console.log(post);
+    console.log(post);
     const comments = post.Comments_num || post.comments_count || 0;
     const cats = post.Categories || [];
 
@@ -213,13 +221,13 @@ function renderPostDetail(post) {
 }
 
 function refreshCurrentPost() {
-    if(!currentPostId) return;
+    if (!currentPostId) return;
 
     fetch(`/api/posts/read?id=${currentPostId}`)
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            renderPostDetail(data.post);
-        }
-    });
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                renderPostDetail(data.post);
+            }
+        });
 }
