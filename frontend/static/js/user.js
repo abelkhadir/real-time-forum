@@ -32,16 +32,30 @@ function loadContacts(contacts) {
         posts++;
         const friend = document.createElement("div");
         friend.className = "friends-item";
+
+        const item = document.createElement("div");
+        item.className = "friend-item";
+        item.addEventListener("click", () => openChat(contact.Username));
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+
+        const img = document.createElement("img");
+        img.id = "avatar";
+        img.src = "/static/images/avatar-white.png";
+        avatar.appendChild(img);
+
+        const name = document.createElement("span");
+        name.textContent = contact.Username;
+
         const statusClass = contact.Online ? "online-dot" : "offline-dot";
-        friend.innerHTML = `
-        <div class="friend-item" onclick="openChat('${contact.Username}')">
-            <div class="avatar">
-                <img id="avatar" src="/static/images/avatar-white.png">
-            </div>
-            <span>${contact.Username}</span>
-            <div class="${statusClass}"></div>
-        </div>
-        `;
+        const status = document.createElement("div");
+        status.className = statusClass;
+
+        item.appendChild(avatar);
+        item.appendChild(name);
+        item.appendChild(status);
+        friend.appendChild(item);
 
         div.appendChild(friend);
     });

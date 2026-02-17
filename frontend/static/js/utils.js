@@ -18,3 +18,13 @@ function showToast(color, message) {
     setTimeout(() => toast.classList.add('hide'), 3000);
     setTimeout(() => toast.remove(), 3500);
 }
+
+function escapeHTML(value) {
+    const str = String(value ?? "");
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}

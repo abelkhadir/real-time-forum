@@ -113,6 +113,9 @@ function buildPostCard(post) {
     div.onclick = () => openPost(post.ID || post.id);
     const comments = post.Comments_num;
     const cats = post.Categories || [];
+    const safeUsername = escapeHTML(post.Username);
+    const safeTitle = escapeHTML(post.Title);
+    const safeCats = cats.map((cat) => escapeHTML(cat)).join(" • ");
 
     div.innerHTML = `
         <div class="post-header">
@@ -120,17 +123,17 @@ function buildPostCard(post) {
                 <img style="width: 40px" id="avatar" src="/static/images/avatar-white.png">
             </div>
             <div>
-            <div class="username">${post.Username}</div>
+            <div class="username">${safeUsername}</div>
             <div class="timestamp">${new Date(post.CreatedAt).toLocaleString()}</div>
             </div>
         </div>
-        <div class="post-body">${post.Title}</div>
+        <div class="post-body">${safeTitle}</div>
         <div class="post-stats">
             <span class="stats-left">
                 ${comments} Comments
             </span>
             <span class="stats-right">
-                ${cats.join(" • ")}
+                ${safeCats}
             </span>
         </div>
     `;
@@ -179,6 +182,10 @@ function renderPostDetail(post) {
     console.log(post);
     const comments = post.Comments_num || post.comments_count || 0;
     const cats = post.Categories || [];
+    const safeUsername = escapeHTML(post.Username);
+    const safeTitle = escapeHTML(post.Title);
+    const safeContent = escapeHTML(post.Content);
+    const safeCats = cats.map((cat) => escapeHTML(cat)).join(" • ");
 
     container.innerHTML = `
     <div style="display: flex; align-items: center; margin-bottom: 15px;">
@@ -189,20 +196,20 @@ function renderPostDetail(post) {
     <div class="post-header">
       <div class="avatar"><img src="/static/images/avatar-white.png" style="width:40px"></div>
       <div>
-        <div class="username">${post.Username}</div>
+        <div class="username">${safeUsername}</div>
         <div class="timestamp">${new Date(post.CreatedAt).toLocaleString()}</div>
       </div>
     </div>
 
-    <h2 class="post-title">${post.Title}</h2>
+    <h2 class="post-title">${safeTitle}</h2>
 
     <div class="post-body" style="font-size: 18px;">
-      ${post.Content}
+      ${safeContent}
     </div>
 
     <div class="post-stats">
       <span>${comments} Comments</span>
-      <span>${cats.join(" • ")}</span>
+      <span>${safeCats}</span>
     </div>
 
     <div class="comment-section">

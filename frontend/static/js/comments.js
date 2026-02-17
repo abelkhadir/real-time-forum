@@ -62,9 +62,9 @@ function renderComments(comments) {
 
   container.innerHTML = comments.map(comment => `
     <div style="border-left: 2px solid #ccc; padding-left: 10px; margin-bottom: 10px;">
-      <div style="font-weight: bold; font-size: 14px;">${comment.username}</div>
+      <div style="font-weight: bold; font-size: 14px;">${escapeHTML(comment.username)}</div>
       <div style="font-size: 12px; color: #666;">${new Date(comment.created_at).toLocaleString()}</div>
-      <div style="margin-top: 5px;">${comment.content}</div>
+      <div style="margin-top: 5px;">${escapeHTML(comment.content)}</div>
     </div>
   `).join("");
 }
@@ -82,11 +82,11 @@ function renderComments(comments) {
     <div style="border-left: 3px solid #515253; padding: 10px; margin-bottom: 15px; background-color: #f9f9f9; border-radius: 0 5px 5px 0;">
       
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-        <span style="font-weight: bold; font-size: 14px; color: #333;">${comment.username}</span>
+        <span style="font-weight: bold; font-size: 14px; color: #333;">${escapeHTML(comment.username)}</span>
         <span style="font-size: 11px; color: #888;">${new Date(comment.created_at).toLocaleString()}</span>
       </div>
 
-      <div style="margin-bottom: 10px; font-size: 14px; line-height: 1.4;">${comment.content}</div>
+      <div style="margin-bottom: 10px; font-size: 14px; line-height: 1.4;">${escapeHTML(comment.content)}</div>
 
       <div style="display: flex; gap: 10px; align-items: center;">
         
