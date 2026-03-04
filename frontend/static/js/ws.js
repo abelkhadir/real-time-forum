@@ -95,10 +95,18 @@ function initWebSocket() {
         }
 
         if (data.type === "UpdateMessages") {
-            if (selectedUser && data.from === selectedUser) {
+            const isActiveConversation =
+                !!selectedUser && (data.from === selectedUser || data.to === selectedUser);
+
+            if (isActiveConversation) {
                 displayMessage(data);
             } else {
-                addNotification(data.from, data.msg);
+                const selfUsername =
+                    typeof currentUsername === "string" ? currentUsername : "";
+                const isOwnMessage = !!selfUsername && data.from === selfUsername;
+                if (!isOwnMessage) {
+                    addNotification(data.from, data.msg);
+                }
             }
             return;
         }

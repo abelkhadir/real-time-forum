@@ -14,12 +14,7 @@
     <header>
         <div class="logo"><a onclick="window.location.href = '/'">FORUM.</a></div>
 
-        <div id="auth-btns" class="auth-btns">
-            <button class="btn btn-primary" onclick="openLoginPopup()">Log in</button>
-            <button class="btn btn-primary" onclick="openRegisterPopup()">Sign in</button>
-        </div>
-
-        <div id="unauth-btns" class="hidden">
+        <div id="unauth-btns">
             <div style="display: inline-flex; gap: 20px; align-items: center;">
                 <button class="notifications-trigger" onclick="toggleNotifs(event)">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
@@ -54,11 +49,7 @@
         </div>
     </header>
 
-    <div id="login-popup" class="popup hidden"></div>
-    <div id="register-popup" class="popup hidden"></div>
-
     <div class="container">
-
         <main class="main-content">
 
             <!-- FEED VIEW -->

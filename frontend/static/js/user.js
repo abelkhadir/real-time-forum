@@ -12,13 +12,13 @@ function setChatStatusByUsername(username) {
     statusEl.classList.toggle("offline", !online);
 }
 
-function loadContacts(contacts) {
+function loadContacts(contacts, wsUsername = "") {
     if (!contacts || contacts.length === 0) {
         return;
     }
 
     lastContacts = contacts;
-    const selfUsername = currentUsername || username || "";
+    const selfUsername = (currentUsername || wsUsername || "").trim();
 
     let posts = 0
 
@@ -81,7 +81,6 @@ function loadUser() {
                     let email = document.getElementById("email");
                     email.textContent = data.email;
                     document.getElementById("logout").classList.remove("hidden");
-                    document.getElementById("auth-btns").classList.add("hidden");
                     document.getElementById("unauth-btns").classList.remove("hidden");
                     if (lastContacts) {
                         loadContacts(lastContacts);
@@ -90,7 +89,6 @@ function loadUser() {
             } else {
                 currentUsername = "";
                 document.getElementById("logout").classList.add("hidden");
-                document.getElementById("auth-btns").classList.remove("hidden");
             }
         })
         .catch(e => console.error(e));

@@ -65,8 +65,24 @@ func CheckCreds_user(user, password string) error {
 	return nil
 }
 
-func CheckCreds_email(email, password string) bool {
-	return true
+func CheckCreds_email(email, password string) error {
+	var passwordHash string
+
+	query := `SELECT password_hash FROM users WHERE email = ?`
+	err := db.QueryRow(query, email).Scan(&passwordHash)
+	if err == sql.ErrNoRows {
+		return fmt.Errorf("Invalid credentials")
+	} else if err != nil {
+		fmt.Printf("Database error: %v", err)
+		return fmt.Errorf("Database error: %v", err)
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
+	if err != nil {
+		return fmt.Errorf("Invalid credentials")
+	}
+
+	return nil
 }
 
 func InsertSession(username, tokenString string, expiresAt time.Time) error {

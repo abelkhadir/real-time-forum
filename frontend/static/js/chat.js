@@ -62,7 +62,6 @@ function sendMessage(msg) {
             msg: msg,
         };
         ws.send(JSON.stringify(payload));
-        displayMessage(payload);
     } else {
         showToast("red", "WebSocket not connected");
     }

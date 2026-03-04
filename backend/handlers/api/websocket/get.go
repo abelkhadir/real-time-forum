@@ -25,20 +25,21 @@ type Client struct {
 }
 
 var (
-	clients   = make(map[string]*Client)
+	clients   = make(map[string][]*Client)
 	clientsMu sync.RWMutex
 )
 
 func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
-	var username string
 	if err != nil {
-		username = "guest"
-	} else {
-		username, err = db.GetUserBySession(cookie.Value)
-		if username == "" || err != nil {
-			username = "guest"
-		}
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	username, err := db.GetUserBySession(cookie.Value)
+	if username == "" || err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -49,20 +50,31 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 
 	client := &Client{Username: username, Conn: conn}
 	clientsMu.Lock()
-	clients[username] = client
+	clients[username] = append(clients[username], client)
 	clientsMu.Unlock()
 
-	if username != "guest" {
-		db.AddOnline(username)
-	}
+	db.AddOnline(username)
 	BroadcastContacts(username)
 
 	defer func() {
 		clientsMu.Lock()
-		delete(clients, username)
+		userClients := clients[username]
+		for i, c := range userClients {
+			if c == client {
+				userClients = append(userClients[:i], userClients[i+1:]...)
+				break
+			}
+		}
+		if len(userClients) == 0 {
+			delete(clients, username)
+		} else {
+			clients[username] = userClients
+		}
 		clientsMu.Unlock()
 		conn.Close()
-		db.RemoveOnline(username)
+		if len(userClients) == 0 {
+			db.RemoveOnline(username)
+		}
 		BroadcastContacts(username)
 		log.Println("Client disconnected:", username)
 	}()
@@ -84,23 +96,38 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 		msg.From = username
 
 		db.SaveMessage(msg.From, msg.To, msg.Msg)
-		if msg.To != "" && msg.To != "guest" && msg.From != "guest" {
+		if msg.To != "" {
 			db.AddNotification(msg.To, msg.From, msg.Msg)
 		}
 
+		event := map[string]interface{}{
+			"type": "UpdateMessages",
+			"to":   msg.To,
+			"from": msg.From,
+			"msg":  msg.Msg,
+		}
+
 		clientsMu.RLock()
-		targetClient, ok := clients[msg.To]
+		targetClients := clients[msg.To]
+		senderClients := clients[msg.From]
 		clientsMu.RUnlock()
-		if ok {
-			if err := targetClient.Conn.WriteJSON(map[string]interface{}{
-				"type": "UpdateMessages",
-				"from": msg.From,
-				"msg":  msg.Msg,
-			}); err != nil {
-				log.Println("Write error:", err)
+
+		if len(targetClients) > 0 {
+			for _, targetClient := range targetClients {
+				if err := targetClient.Conn.WriteJSON(event); err != nil {
+					log.Println("Write error:", err)
+				}
 			}
 		} else {
-			log.Println("Target client ot found:", msg.To)
+			log.Println("Target client not found:", msg.To)
+		}
+
+		if msg.From != msg.To {
+			for _, senderClient := range senderClients {
+				if err := senderClient.Conn.WriteJSON(event); err != nil {
+					log.Println("Write error:", err)
+				}
+			}
 		}
 	}
 }
@@ -109,22 +136,26 @@ func BroadcastContacts(username string) {
 	contacts, _ := db.GetContacts()
 	clientsMu.RLock()
 	defer clientsMu.RUnlock()
-	for _, c := range clients {
-		c.Conn.WriteJSON(map[string]interface{}{
-			"type":     "UpdateContacts",
-			"contacts": contacts,
-			"username": c.Username,
-		})
+	for _, userClients := range clients {
+		for _, c := range userClients {
+			c.Conn.WriteJSON(map[string]interface{}{
+				"type":     "UpdateContacts",
+				"contacts": contacts,
+				"username": c.Username,
+			})
+		}
 	}
 }
 
 func BroadcastPost(post db.Post) {
 	clientsMu.RLock()
 	defer clientsMu.RUnlock()
-	for _, c := range clients {
-		c.Conn.WriteJSON(map[string]interface{}{
-			"type": "UpdatePosts",
-			"post": post,
-		})
+	for _, userClients := range clients {
+		for _, c := range userClients {
+			c.Conn.WriteJSON(map[string]interface{}{
+				"type": "UpdatePosts",
+				"post": post,
+			})
+		}
 	}
 }
