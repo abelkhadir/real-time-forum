@@ -8,14 +8,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func InsertUser(Username, Email, Password string) error {
+func InsertUser(Username, Email string, Age int, Gender, FirstName, LastName, Password string) error {
 	PasswordHash, err := bcrypt.GenerateFromPassword([]byte(Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	stmt := `INSERT INTO users (username, email, password_hash, is_online) VALUES (?, ?, ?, ?)`
-	_, err = db.Exec(stmt, Username, Email, string(PasswordHash), false)
+	stmt := `INSERT INTO users (username, email, age, gender, first_name, last_name, password_hash, is_online) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err = db.Exec(stmt, Username, Email, Age, Gender, FirstName, LastName, string(PasswordHash), false)
 	return err
 }
 
@@ -161,14 +161,24 @@ type Contact struct {
 	Online   bool
 }
 
-func GetContacts() ([]Contact, error) {
+func GetContacts(currentUsername string) ([]Contact, error) {
 	query := `
 		SELECT u.username, u.is_online
 		FROM users u
-		LEFT JOIN sessions s ON s.username = u.username
+		LEFT JOIN messages m
+			ON (
+				(m.from_username = ? AND m.to_username = u.username)
+				OR
+				(m.from_username = u.username AND m.to_username = ?)
+			)
+		GROUP BY u.username, u.is_online
+		ORDER BY
+			CASE WHEN MAX(m.created_at) IS NULL THEN 1 ELSE 0 END,
+			MAX(m.created_at) DESC,
+			LOWER(u.username) ASC
 	`
 
-	rows, err := db.Query(query)
+	rows, err := db.Query(query, currentUsername, currentUsername)
 	if err != nil {
 		return nil, err
 	}

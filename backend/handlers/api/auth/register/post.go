@@ -6,15 +6,20 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 
 	db "real/backend/database"
 )
 
 // --- Structs ---
 type RegisterRequest struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Username  string `json:"username"`
+	Age       int    `json:"age"`
+	Gender    string `json:"gender"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -30,6 +35,12 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	req.Username = strings.TrimSpace(req.Username)
+	req.Gender = strings.ToLower(strings.TrimSpace(req.Gender))
+	req.FirstName = strings.TrimSpace(req.FirstName)
+	req.LastName = strings.TrimSpace(req.LastName)
+	req.Email = strings.TrimSpace(req.Email)
+
 	if err := validateInput(req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
@@ -37,7 +48,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 5. Insert f Database
-	err := db.InsertUser(req.Username, req.Email, req.Password)
+	err := db.InsertUser(req.Username, req.Email, req.Age, req.Gender, req.FirstName, req.LastName, req.Password)
 	if err != nil {
 		log.Printf("DB insertion error: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -53,6 +64,10 @@ func Register(w http.ResponseWriter, r *http.Request) {
 func validateInput(req RegisterRequest) error {
 	email := req.Email
 	username := req.Username
+	age := req.Age
+	gender := req.Gender
+	firstName := req.FirstName
+	lastName := req.LastName
 	password := req.Password
 
 	if len(email) < 7 || len(email) > 40 {
@@ -86,6 +101,22 @@ func validateInput(req RegisterRequest) error {
 		return fmt.Errorf("this username is already used")
 	}
 
+	if age < 1 || age > 130 {
+		return fmt.Errorf("age must be between 1 and 130")
+	}
+
+	if gender != "male" && gender != "female" && gender != "other" {
+		return fmt.Errorf("gender must be male, female or other")
+	}
+
+	if len(firstName) < 1 || len(firstName) > 50 {
+		return fmt.Errorf("first name must be between 1 and 50 characters")
+	}
+
+	if len(lastName) < 1 || len(lastName) > 50 {
+		return fmt.Errorf("last name must be between 1 and 50 characters")
+	}
+
 	if len(password) < 8 || len(password) > 64 {
 		return fmt.Errorf("password must be between 8 and 64 characters")
 	}
@@ -105,4 +136,3 @@ func validateInput(req RegisterRequest) error {
 
 	return nil
 }
-

@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -24,6 +25,10 @@ func Migrate() error {
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		username TEXT UNIQUE NOT NULL CHECK(length(username) BETWEEN 4 AND 24),
 		email TEXT UNIQUE NOT NULL CHECK(length(email) <= 100),
+		age INTEGER NOT NULL CHECK(age BETWEEN 1 AND 130),
+		gender TEXT NOT NULL,
+		first_name TEXT NOT NULL,
+		last_name TEXT NOT NULL,
 		is_online BOOLEAN NOT NULL DEFAULT 0,
 		password_hash TEXT NOT NULL
 	);
@@ -86,8 +91,38 @@ func Migrate() error {
 		FOREIGN KEY(user_id) REFERENCES users(id)
 	);
 
-  `
-	_, err := db.Exec(schema)
+	`
+	if _, err := db.Exec(schema); err != nil {
+		return err
+	}
+
+	// Keep existing local DBs compatible with the newer required user fields.
+	if err := addColumnIfMissing(`ALTER TABLE users ADD COLUMN age INTEGER NOT NULL DEFAULT 18`); err != nil {
+		return err
+	}
+	if err := addColumnIfMissing(`ALTER TABLE users ADD COLUMN gender TEXT NOT NULL DEFAULT 'other'`); err != nil {
+		return err
+	}
+	if err := addColumnIfMissing(`ALTER TABLE users ADD COLUMN first_name TEXT NOT NULL DEFAULT ''`); err != nil {
+		return err
+	}
+	if err := addColumnIfMissing(`ALTER TABLE users ADD COLUMN last_name TEXT NOT NULL DEFAULT ''`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func addColumnIfMissing(query string) error {
+	_, err := db.Exec(query)
+	if err == nil {
+		return nil
+	}
+
+	if strings.Contains(strings.ToLower(err.Error()), "duplicate column name") {
+		return nil
+	}
+
 	return err
 }
 

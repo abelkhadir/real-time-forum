@@ -100,7 +100,8 @@ body {
 /* === Post Box === */
 
 input,
-textarea {
+textarea,
+select {
     width: 100%;
     padding: 10px;
     border: none;
@@ -473,7 +474,7 @@ header {
     padding: 2rem;
     border-radius: 12px;
     z-index: 10;
-    height: 50%;
+    height: 62%;
     width: 50%;
     margin: auto;
     display: inline-flex;

@@ -1,19 +1,34 @@
 package db
 
 type Message struct {
-	To   string `json:"to"`
-	From string `json:"from"`
-	Msg  string `json:"msg"`
+	To        string `json:"to"`
+	From      string `json:"from"`
+	Msg       string `json:"msg"`
+	CreatedAt string `json:"created_at"`
 }
 
-func SaveMessage(from, to, message string) error {
-	_, err := db.Exec(`INSERT INTO messages (from_username, to_username, content) VALUES (?, ?, ?)`, from, to, message)
+func SaveMessage(from, to, message string) (string, error) {
+	res, err := db.Exec(`INSERT INTO messages (from_username, to_username, content) VALUES (?, ?, ?)`, from, to, message)
+	if err != nil {
+		return "", err
+	}
 
-	return err
+	insertedID, err := res.LastInsertId()
+	if err != nil {
+		return "", err
+	}
+
+	var createdAt string
+	err = db.QueryRow(`SELECT created_at FROM messages WHERE id = ?`, insertedID).Scan(&createdAt)
+	if err != nil {
+		return "", err
+	}
+
+	return createdAt, nil
 }
 
 func ReadMessages(from, to string) ([]Message, error) {
-	rows, err := db.Query(`SELECT from_username, to_username, content FROM messages 
+	rows, err := db.Query(`SELECT from_username, to_username, content, created_at FROM messages 
         WHERE (from_username = ? AND to_username = ?) 
            OR (from_username = ? AND to_username = ?)
         ORDER BY created_at ASC;
@@ -26,7 +41,7 @@ func ReadMessages(from, to string) ([]Message, error) {
 	var messages []Message
 	for rows.Next() {
 		var msg Message
-		if err := rows.Scan(&msg.From, &msg.To, &msg.Msg); err != nil {
+		if err := rows.Scan(&msg.From, &msg.To, &msg.Msg, &msg.CreatedAt); err != nil {
 			return nil, err
 		}
 		messages = append(messages, msg)
@@ -35,7 +50,7 @@ func ReadMessages(from, to string) ([]Message, error) {
 }
 
 func ReadMessagesPaged(from, to string, limit, offset int) ([]Message, error) {
-	rows, err := db.Query(`SELECT from_username, to_username, content FROM messages 
+	rows, err := db.Query(`SELECT from_username, to_username, content, created_at FROM messages 
         WHERE (from_username = ? AND to_username = ?) 
            OR (from_username = ? AND to_username = ?)
         ORDER BY created_at DESC
@@ -49,7 +64,7 @@ func ReadMessagesPaged(from, to string, limit, offset int) ([]Message, error) {
 	var messages []Message
 	for rows.Next() {
 		var msg Message
-		if err := rows.Scan(&msg.From, &msg.To, &msg.Msg); err != nil {
+		if err := rows.Scan(&msg.From, &msg.To, &msg.Msg, &msg.CreatedAt); err != nil {
 			return nil, err
 		}
 		messages = append(messages, msg)

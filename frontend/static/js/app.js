@@ -1,9 +1,16 @@
-function initApp() {
+async function initApp() {
+    // Setup logout button
+    setupLogoutButton();
+
+    const authenticated = await loadUser();
+    if (!authenticated) {
+        return;
+    }
+
     // Initialize WebSocket first
     initWebSocket();
 
     // Load user info and contacts
-    loadUser();
     fetchNotifications();
 
     // Setup post creation UI
@@ -11,9 +18,6 @@ function initApp() {
 
     // Load initial posts
     getPosts(1);
-
-    // Setup logout button
-    setupLogoutButton();
 }
 
 function setupLogoutButton() {

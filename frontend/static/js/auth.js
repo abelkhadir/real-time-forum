@@ -79,8 +79,6 @@ async function handleLogin(e) {
             notify("green", "Logged in successfully");
 
             closePopup();
-            await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
-
             window.location.assign("/");
             return;
         }
@@ -95,16 +93,24 @@ async function handleRegister(e) {
     e.preventDefault();
 
     const usernameInput = document.getElementById("register-username");
+    const ageInput = document.getElementById("register-age");
+    const genderInput = document.getElementById("register-gender");
+    const firstNameInput = document.getElementById("register-first-name");
+    const lastNameInput = document.getElementById("register-last-name");
     const emailInput = document.getElementById("register-email");
     const passwordInput = document.getElementById("register-password");
     const confirmInput = document.getElementById("register-confirm-password");
 
     const username = (usernameInput?.value || "").trim();
+    const age = Number(ageInput?.value || 0);
+    const gender = (genderInput?.value || "").trim();
+    const first_name = (firstNameInput?.value || "").trim();
+    const last_name = (lastNameInput?.value || "").trim();
     const email = (emailInput?.value || "").trim();
     const password = passwordInput?.value || "";
     const confirmPassword = confirmInput?.value || "";
 
-    if (!username || !email || !password || !confirmPassword) {
+    if (!username || !age || !gender || !first_name || !last_name || !email || !password || !confirmPassword) {
         notify("red", "Please complete all fields");
         return;
     }
@@ -118,7 +124,15 @@ async function handleRegister(e) {
         const res = await fetch("/api/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, email, password }),
+            body: JSON.stringify({
+                username,
+                age,
+                gender,
+                first_name,
+                last_name,
+                email,
+                password
+            }),
         });
 
         const data = await res.json().catch(() => ({}));

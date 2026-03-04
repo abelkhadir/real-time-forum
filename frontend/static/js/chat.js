@@ -71,6 +71,15 @@ function displayMessage(data) {
     renderMessage(data, { prepend: false, keepScroll: false });
 }
 
+function formatMessageDate(value) {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) {
+        return String(value);
+    }
+    return d.toLocaleString();
+}
+
 function renderMessage(data, { prepend, keepScroll }) {
     const chatMessagesContainer = document.getElementById('chat-messages-container');
     if (!chatMessagesContainer) return;
@@ -78,7 +87,13 @@ function renderMessage(data, { prepend, keepScroll }) {
     const msgDiv = document.createElement('div');
 
     msgDiv.className = data.from === selectedUser ? 'msg msg-out' : 'msg msg-in';
-    msgDiv.innerText = data.msg;
+    const sender = escapeHTML(data.from || "");
+    const message = escapeHTML(data.msg || "");
+    const date = escapeHTML(formatMessageDate(data.created_at || ""));
+    msgDiv.innerHTML = `
+        <div style="font-size:11px; opacity:0.75; margin-bottom:4px;">${sender}${date ? ` • ${date}` : ""}</div>
+        <div>${message}</div>
+    `;
 
     if (prepend) {
         const prevHeight = chatMessagesContainer.scrollHeight;
@@ -148,7 +163,13 @@ function loadMessages(reset) {
                 msgs.forEach(msg => {
                     const msgDiv = document.createElement('div');
                     msgDiv.className = msg.from === selectedUser ? 'msg msg-out' : 'msg msg-in';
-                    msgDiv.innerText = msg.msg;
+                    const sender = escapeHTML(msg.from || "");
+                    const message = escapeHTML(msg.msg || "");
+                    const date = escapeHTML(formatMessageDate(msg.created_at || ""));
+                    msgDiv.innerHTML = `
+                        <div style="font-size:11px; opacity:0.75; margin-bottom:4px;">${sender}${date ? ` • ${date}` : ""}</div>
+                        <div>${message}</div>
+                    `;
                     fragment.appendChild(msgDiv);
                 });
 

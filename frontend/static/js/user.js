@@ -2,6 +2,30 @@ let contactsByName = {};
 let currentUsername = "";
 let lastContacts = null;
 
+function setAuthenticatedState(isAuthenticated) {
+    const appShell = document.getElementById("app-shell");
+    const authButtons = document.getElementById("auth-btns");
+    const profileButtons = document.getElementById("unauth-btns");
+
+    if (appShell) {
+        appShell.classList.toggle("hidden", !isAuthenticated);
+    }
+
+    if (authButtons) {
+        authButtons.classList.toggle("hidden", isAuthenticated);
+    }
+
+    if (profileButtons) {
+        profileButtons.classList.toggle("hidden", !isAuthenticated);
+    }
+
+    if (isAuthenticated) {
+        closePopup();
+    } else {
+        openLoginPopup();
+    }
+}
+
 function setChatStatusByUsername(username) {
     const statusEl = document.getElementById("chat-status");
     if (!statusEl) return;
@@ -70,8 +94,13 @@ function loadContacts(contacts, wsUsername = "") {
 }
 
 function loadUser() {
-    fetch("/api/me")
-        .then(res => res.json())
+    return fetch("/api/me")
+        .then(async (res) => {
+            if (!res.ok) {
+                return { success: false };
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.success) {
                 if (data.username != "") {
@@ -81,17 +110,27 @@ function loadUser() {
                     let email = document.getElementById("email");
                     email.textContent = data.email;
                     document.getElementById("logout").classList.remove("hidden");
-                    document.getElementById("unauth-btns").classList.remove("hidden");
+                    setAuthenticatedState(true);
                     if (lastContacts) {
                         loadContacts(lastContacts);
                     }
+                    return true;
                 }
             } else {
                 currentUsername = "";
                 document.getElementById("logout").classList.add("hidden");
+                setAuthenticatedState(false);
+                return false;
             }
+            setAuthenticatedState(false);
+            return false;
         })
-        .catch(e => console.error(e));
+        .catch(e => {
+            console.error(e);
+            currentUsername = "";
+            setAuthenticatedState(false);
+            return false;
+        });
 }
 
 const menu = document.getElementById("menu-dropdown");

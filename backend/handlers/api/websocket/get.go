@@ -95,16 +95,21 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 		// Server assigns sender
 		msg.From = username
 
-		db.SaveMessage(msg.From, msg.To, msg.Msg)
+		createdAt, err := db.SaveMessage(msg.From, msg.To, msg.Msg)
+		if err != nil {
+			log.Println("Save message error:", err)
+			continue
+		}
 		if msg.To != "" {
 			db.AddNotification(msg.To, msg.From, msg.Msg)
 		}
 
 		event := map[string]interface{}{
-			"type": "UpdateMessages",
-			"to":   msg.To,
-			"from": msg.From,
-			"msg":  msg.Msg,
+			"type":       "UpdateMessages",
+			"to":         msg.To,
+			"from":       msg.From,
+			"msg":        msg.Msg,
+			"created_at": createdAt,
 		}
 
 		clientsMu.RLock()
@@ -133,11 +138,11 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func BroadcastContacts(username string) {
-	contacts, _ := db.GetContacts()
 	clientsMu.RLock()
 	defer clientsMu.RUnlock()
 	for _, userClients := range clients {
 		for _, c := range userClients {
+			contacts, _ := db.GetContacts(c.Username)
 			c.Conn.WriteJSON(map[string]interface{}{
 				"type":     "UpdateContacts",
 				"contacts": contacts,
