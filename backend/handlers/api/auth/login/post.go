@@ -17,6 +17,7 @@ type LoginRequest struct {
 	Password   string `json:"password"`
 }
 
+// Login authenticates a user and issues a session cookie.
 func Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -90,12 +91,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 // ==========================
 // LOGOUT HANDLER
 // ==========================
+// Logout clears the current session and updates online status.
 func Logout(w http.ResponseWriter, r *http.Request) {
-	// 1. Jbed cookie
-
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		// Ila makanch cookie, aslan howa logout
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -104,17 +103,15 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 	db.DeleteSess(cookie.Value)
 
-	// 2. Mse7 session mn Database
 	if username != "" {
 		_ = db.RemoveOnline(username)
 		ws.BroadcastContacts(username)
 	}
 
-	// 3. 9tel l-Cookie f Browser (Set expired date)
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    "",
-		Expires:  time.Unix(0, 0), // Date qdima
+		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
 		Path:     "/",
 		MaxAge:   -1, // Delete immediately
@@ -125,6 +122,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
+// CheckAuth blocks requests that do not have a valid session.
 func CheckAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		c, err := r.Cookie("session_token")
@@ -147,6 +145,7 @@ func CheckAuth(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// NoCache adds headers that disable browser caching.
 func NoCache(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")

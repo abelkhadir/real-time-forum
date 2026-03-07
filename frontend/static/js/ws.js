@@ -6,6 +6,7 @@ const counter = document.querySelector(".notifications-counter");
 let notifications = [];
 let unreadCount = 0;
 
+// renderNotifications draws the current notification list.
 function renderNotifications() {
     const container = document.getElementById("notifications-container");
     if (!container) return;
@@ -32,6 +33,7 @@ function renderNotifications() {
     });
 }
 
+// updateCounter refreshes the unread notification badge.
 function updateCounter() {
     if (!counter) return;
     if (unreadCount > 0) {
@@ -43,22 +45,27 @@ function updateCounter() {
     }
 }
 
+// addNotification adds a new unread notification to the list.
 function addNotification(from, msg) {
     const preview = msg && msg.length > 80 ? `${msg.slice(0, 77)}...` : (msg || "");
     const text = preview ? `Message from ${from}: ${preview}` : `Message from ${from}`;
-    notifications.unshift({ from, msg, text });
+    const notifMenu = document.getElementById("notif-menu");
+    const isNotifMenuOpen = notifMenu && !notifMenu.classList.contains("hidden");
+    notifications.unshift({ from, text });
     if (notifications.length > 50) notifications.length = 50;
-    unreadCount += 1;
+    if (!isNotifMenuOpen) unreadCount += 1;
     updateCounter();
     renderNotifications();
 }
 
+// markNotificationsRead clears unread notifications on the server and UI.
 function markNotificationsRead() {
     fetch("/api/notifications/read", { method: "POST" }).catch(() => {});
     unreadCount = 0;
     updateCounter();
 }
 
+// fetchNotifications loads unread notifications from the backend.
 function fetchNotifications() {
     return fetch("/api/notifications")
         .then((res) => {
@@ -71,7 +78,7 @@ function fetchNotifications() {
             data.notifications.forEach((n) => {
                 const preview = n.msg && n.msg.length > 80 ? `${n.msg.slice(0, 77)}...` : (n.msg || "");
                 const text = preview ? `New message from ${n.from}: ${preview}` : `New message from ${n.from}`;
-                notifications.push({ from: n.from, msg: n.msg, text });
+                notifications.push({ from: n.from, text });
             });
             unreadCount = typeof data.count === "number" ? data.count : notifications.length;
             updateCounter();
@@ -80,7 +87,7 @@ function fetchNotifications() {
         .catch(() => {});
 }
 
-// Initialize WebSocket connection
+// initWebSocket connects the realtime event stream and dispatches updates.
 function initWebSocket() {
     ws = new WebSocket(`ws://${window.location.host}/ws`);
 
@@ -89,21 +96,14 @@ function initWebSocket() {
     ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
 
-        if (data.type === "UpdateNotifs") {
-            // Reserved for future backend-driven notifications
-            return;
-        }
-
         if (data.type === "UpdateMessages") {
-            const isActiveConversation =
-                !!selectedUser && (data.from === selectedUser || data.to === selectedUser);
+            const isActiveConversation = selectedUser && (data.from === selectedUser || data.to === selectedUser);
 
             if (isActiveConversation) {
                 displayMessage(data);
             } else {
-                const selfUsername =
-                    typeof currentUsername === "string" ? currentUsername : "";
-                const isOwnMessage = !!selfUsername && data.from === selfUsername;
+                const selfUsername = typeof currentUsername === "string" ? currentUsername : "";
+                const isOwnMessage = selfUsername !== "" && data.from === selfUsername;
                 if (!isOwnMessage) {
                     addNotification(data.from, data.msg);
                 }

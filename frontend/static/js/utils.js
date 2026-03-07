@@ -1,6 +1,7 @@
 // Toast Notification System
 const container = document.getElementById('toast-container');
 
+// showToast renders a temporary toast message.
 function showToast(color, message) {
     if (!container) return;
 
@@ -19,6 +20,7 @@ function showToast(color, message) {
     setTimeout(() => toast.remove(), 3500);
 }
 
+// escapeHTML sanitizes text before inserting it into the DOM.
 function escapeHTML(value) {
     const str = String(value ?? "");
     return str

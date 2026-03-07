@@ -1,5 +1,6 @@
 // Authentication popups and handlers
 
+// notify shows a toast when available and falls back to console output.
 function notify(color, message) {
     if (typeof showToast === "function") {
         showToast(color, message);
@@ -14,6 +15,7 @@ function notify(color, message) {
     console.log(message);
 }
 
+// openLoginPopup shows the login modal and hides the register modal.
 function openLoginPopup() {
     const loginPopup = document.getElementById("login-popup");
     const registerPopup = document.getElementById("register-popup");
@@ -27,6 +29,7 @@ function openLoginPopup() {
     }
 }
 
+// openRegisterPopup shows the register modal and hides the login modal.
 function openRegisterPopup() {
     const loginPopup = document.getElementById("login-popup");
     const registerPopup = document.getElementById("register-popup");
@@ -40,6 +43,7 @@ function openRegisterPopup() {
     }
 }
 
+// closePopup hides both authentication modals.
 function closePopup() {
     const loginPopup = document.getElementById("login-popup");
     const registerPopup = document.getElementById("register-popup");
@@ -53,6 +57,7 @@ function closePopup() {
     }
 }
 
+// handleLogin submits the login form and redirects on success.
 async function handleLogin(e) {
     e.preventDefault();
 
@@ -89,6 +94,7 @@ async function handleLogin(e) {
     }
 }
 
+// handleRegister submits the registration form after basic validation.
 async function handleRegister(e) {
     e.preventDefault();
 
@@ -152,6 +158,7 @@ async function handleRegister(e) {
     }
 }
 
+// bindAuthForms attaches auth form handlers once.
 function bindAuthForms() {
     const loginForm = document.getElementById("login-form");
     if (loginForm && loginForm.dataset.bound !== "true") {

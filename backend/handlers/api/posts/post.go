@@ -22,6 +22,7 @@ var allowedCategories = map[string]struct{}{
 	"gaming": {},
 }
 
+// CreatePost stores a new post for the authenticated user.
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 	// choose valid category, title + content non empty
 	var req PostReq

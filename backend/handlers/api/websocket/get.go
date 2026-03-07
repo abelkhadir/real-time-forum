@@ -29,6 +29,7 @@ var (
 	clientsMu sync.RWMutex
 )
 
+// WebSocketsHandler upgrades the request and handles realtime chat events.
 func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
@@ -67,22 +68,18 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if len(userClients) == 0 {
 			delete(clients, username)
+			db.RemoveOnline(username)
 		} else {
 			clients[username] = userClients
 		}
 		clientsMu.Unlock()
 		conn.Close()
-		if len(userClients) == 0 {
-			db.RemoveOnline(username)
-		}
 		BroadcastContacts(username)
-		log.Println("Client disconnected:", username)
 	}()
 
 	for {
 		_, msgBytes, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("Read error:", err)
 			break
 		}
 
@@ -137,6 +134,7 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// BroadcastContacts sends each client an updated contact list.
 func BroadcastContacts(username string) {
 	clientsMu.RLock()
 	defer clientsMu.RUnlock()
@@ -152,6 +150,7 @@ func BroadcastContacts(username string) {
 	}
 }
 
+// BroadcastPost pushes a new post to connected clients.
 func BroadcastPost(post db.Post) {
 	clientsMu.RLock()
 	defer clientsMu.RUnlock()

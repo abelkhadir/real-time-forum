@@ -2,6 +2,7 @@ let contactsByName = {};
 let currentUsername = "";
 let lastContacts = null;
 
+// setAuthenticatedState toggles between the auth view and app view.
 function setAuthenticatedState(isAuthenticated) {
     const appShell = document.getElementById("app-shell");
     const authButtons = document.getElementById("auth-btns");
@@ -26,6 +27,7 @@ function setAuthenticatedState(isAuthenticated) {
     }
 }
 
+// setChatStatusByUsername updates the status badge for the open chat.
 function setChatStatusByUsername(username) {
     const statusEl = document.getElementById("chat-status");
     if (!statusEl) return;
@@ -36,6 +38,7 @@ function setChatStatusByUsername(username) {
     statusEl.classList.toggle("offline", !online);
 }
 
+// loadContacts renders the contact list for the current user.
 function loadContacts(contacts, wsUsername = "") {
     if (!contacts || contacts.length === 0) {
         return;
@@ -93,55 +96,47 @@ function loadContacts(contacts, wsUsername = "") {
     }
 }
 
-function loadUser() {
-    return fetch("/api/me")
-        .then(async (res) => {
-            if (!res.ok) {
-                return { success: false };
-            }
-            return res.json();
-        })
-        .then(data => {
-            if (data.success) {
-                if (data.username != "") {
-                    currentUsername = data.username;
-                    let user = document.getElementById("username");
-                    user.textContent = data.username;
-                    let email = document.getElementById("email");
-                    email.textContent = data.email;
-                    document.getElementById("logout").classList.remove("hidden");
-                    setAuthenticatedState(true);
-                    if (lastContacts) {
-                        loadContacts(lastContacts);
-                    }
-                    return true;
-                }
-            } else {
-                currentUsername = "";
-                document.getElementById("logout").classList.add("hidden");
-                setAuthenticatedState(false);
-                return false;
-            }
-            setAuthenticatedState(false);
-            return false;
-        })
-        .catch(e => {
-            console.error(e);
+// loadUser fetches the current user and updates the UI state.
+async function loadUser() {
+    try {
+        const res = await fetch("/api/me");
+        if (!res.ok) return false;
+
+        const data = await res.json();
+        if (!data.success || !data.username) {
             currentUsername = "";
+            document.getElementById("logout").classList.add("hidden");
             setAuthenticatedState(false);
             return false;
-        });
+        }
+
+        currentUsername = data.username;
+        document.getElementById("username").textContent = data.username;
+        document.getElementById("email").textContent = data.email;
+        document.getElementById("logout").classList.remove("hidden");
+        setAuthenticatedState(true);
+
+        if (lastContacts) loadContacts(lastContacts);
+        return true;
+    } catch (e) {
+        console.error(e);
+        currentUsername = "";
+        setAuthenticatedState(false);
+        return false;
+    }
 }
 
 const menu = document.getElementById("menu-dropdown");
 const notifMenu = document.getElementById("notif-menu");
 
+// toggleLogout shows or hides the profile menu.
 function toggleLogout(e) {
     e.stopPropagation();
     menu.classList.toggle("hidden");
     notifMenu.classList.add("hidden");
 }
 
+// toggleNotifs shows or hides the notifications menu.
 function toggleNotifs(e) {
     e.stopPropagation();
     const wasHidden = notifMenu.classList.contains("hidden");

@@ -1,3 +1,4 @@
+// submitComment sends the current comment for the open post.
 function submitComment() {
   const input = document.getElementById("commentInput");
   const commentText = input.value.trim();
@@ -36,6 +37,7 @@ function submitComment() {
     });
 }
 
+// loadComments fetches comments for a post.
 function loadComments(postId) {
   fetch(`/api/comments?post_id=${postId}`)
     .then(res => res.json())
@@ -51,6 +53,7 @@ function loadComments(postId) {
     });
 }
 
+// renderComments renders a basic comment list for a post.
 function renderComments(comments) {
   const container = document.getElementById("comments-container");
   if (!container) return;
@@ -69,6 +72,7 @@ function renderComments(comments) {
   `).join("");
 }
 
+// renderComments renders the styled comment list for a post.
 function renderComments(comments) {
   const container = document.getElementById("comments-container");
   if (!container) return;

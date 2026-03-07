@@ -16,6 +16,7 @@ import (
 	ws "real/backend/handlers/api/websocket"
 )
 
+// main configures the routes and starts the HTTP server.
 func main() {
 	err := db.InitDB()
 	if err != nil {

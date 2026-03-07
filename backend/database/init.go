@@ -9,6 +9,7 @@ import (
 
 var db *sql.DB
 
+// InitDB opens the SQLite database connection.
 func InitDB() error {
 	var err error
 	db, err = sql.Open("sqlite3", "./forum.db")
@@ -18,6 +19,7 @@ func InitDB() error {
 	return db.Ping()
 }
 
+// Migrate creates the required tables and backfills new user columns.
 func Migrate() error {
 	schema := `
 
@@ -113,6 +115,7 @@ func Migrate() error {
 	return nil
 }
 
+// addColumnIfMissing ignores duplicate column errors during migration.
 func addColumnIfMissing(query string) error {
 	_, err := db.Exec(query)
 	if err == nil {
@@ -126,11 +129,13 @@ func addColumnIfMissing(query string) error {
 	return err
 }
 
+// AddOnline marks a user as online.
 func AddOnline(username string) error {
 	_, err := db.Exec("UPDATE users SET is_online = 1 WHERE username = ?", username)
 	return err
 }
 
+// RemoveOnline marks a user as offline.
 func RemoveOnline(username string) error {
 	_, err := db.Exec("UPDATE users SET is_online = 0 WHERE username = ?", username)
 	return err

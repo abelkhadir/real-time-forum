@@ -1,3 +1,4 @@
+// initApp loads the authenticated app state and realtime features.
 async function initApp() {
     // Setup logout button
     setupLogoutButton();
@@ -20,6 +21,7 @@ async function initApp() {
     getPosts(1);
 }
 
+// setupLogoutButton wires the logout button click handler.
 function setupLogoutButton() {
     const logoutBtn = document.getElementById("logout");
     if (logoutBtn) {
@@ -27,6 +29,7 @@ function setupLogoutButton() {
     }
 }
 
+// handleLogout ends the current session and reloads the page.
 function handleLogout() {
     fetch("/api/logout", {
         method: "POST",

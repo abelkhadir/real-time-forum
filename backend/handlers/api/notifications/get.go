@@ -7,6 +7,7 @@ import (
 	db "real/backend/database"
 )
 
+// GetNotifications returns unread notifications for the authenticated user.
 func GetNotifications(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {

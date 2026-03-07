@@ -7,6 +7,7 @@ type Message struct {
 	CreatedAt string `json:"created_at"`
 }
 
+// SaveMessage stores a private message and returns its creation time.
 func SaveMessage(from, to, message string) (string, error) {
 	res, err := db.Exec(`INSERT INTO messages (from_username, to_username, content) VALUES (?, ?, ?)`, from, to, message)
 	if err != nil {
@@ -27,6 +28,7 @@ func SaveMessage(from, to, message string) (string, error) {
 	return createdAt, nil
 }
 
+// ReadMessages loads the full message history between two users.
 func ReadMessages(from, to string) ([]Message, error) {
 	rows, err := db.Query(`SELECT from_username, to_username, content, created_at FROM messages 
         WHERE (from_username = ? AND to_username = ?) 
@@ -49,6 +51,7 @@ func ReadMessages(from, to string) ([]Message, error) {
 	return messages, nil
 }
 
+// ReadMessagesPaged loads a page of messages between two users.
 func ReadMessagesPaged(from, to string, limit, offset int) ([]Message, error) {
 	rows, err := db.Query(`SELECT from_username, to_username, content, created_at FROM messages 
         WHERE (from_username = ? AND to_username = ?) 

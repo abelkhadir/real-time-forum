@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// InsertUser creates a new user with profile details and a hashed password.
 func InsertUser(Username, Email string, Age int, Gender, FirstName, LastName, Password string) error {
 	PasswordHash, err := bcrypt.GenerateFromPassword([]byte(Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -19,6 +20,7 @@ func InsertUser(Username, Email string, Age int, Gender, FirstName, LastName, Pa
 	return err
 }
 
+// DoesEmailExist checks whether an email is already registered.
 func DoesEmailExist(email string) (bool, error) {
 	var existingEmail string
 	err := db.QueryRow(`SELECT email FROM users WHERE email = ?`, email).Scan(&existingEmail)
@@ -31,6 +33,7 @@ func DoesEmailExist(email string) (bool, error) {
 	return true, nil
 }
 
+// DoesUserExist checks whether a username is already registered.
 func DoesUserExist(username string) (bool, error) {
 	var existingUsername string
 	err := db.QueryRow(`SELECT username FROM users WHERE username = ?`, username).Scan(&existingUsername)
@@ -43,6 +46,7 @@ func DoesUserExist(username string) (bool, error) {
 	return true, nil
 }
 
+// CheckCreds_user validates a username and password login attempt.
 func CheckCreds_user(user, password string) error {
 	var password_hash string
 
@@ -65,6 +69,7 @@ func CheckCreds_user(user, password string) error {
 	return nil
 }
 
+// CheckCreds_email validates an email and password login attempt.
 func CheckCreds_email(email, password string) error {
 	var passwordHash string
 
@@ -85,6 +90,7 @@ func CheckCreds_email(email, password string) error {
 	return nil
 }
 
+// InsertSession replaces any existing session and stores a new one.
 func InsertSession(username, tokenString string, expiresAt time.Time) error {
 	_, err := db.Exec("DELETE FROM sessions WHERE username = ?", username)
 	if err != nil {
@@ -99,6 +105,7 @@ func InsertSession(username, tokenString string, expiresAt time.Time) error {
 	return nil
 }
 
+// GetUserByEmail returns the username associated with an email.
 func GetUserByEmail(email string) (string, error) {
 	var user string
 
@@ -115,6 +122,7 @@ func GetUserByEmail(email string) (string, error) {
 	return user, nil
 }
 
+// GetEmailBySession returns the email associated with a username.
 func GetEmailBySession(username string) (string, error) {
 	var email string
 
@@ -131,6 +139,7 @@ func GetEmailBySession(username string) (string, error) {
 	return email, nil
 }
 
+// GetUserBySession returns the username for a valid session token.
 func GetUserBySession(token string) (string, error) {
 	var username string
 
@@ -147,6 +156,7 @@ func GetUserBySession(token string) (string, error) {
 	return username, nil
 }
 
+// DeleteSess removes a session by token.
 func DeleteSess(cookie string) {
 	db.Exec("DELETE FROM sessions WHERE id = ?", cookie)
 }
@@ -161,6 +171,7 @@ type Contact struct {
 	Online   bool
 }
 
+// GetContacts returns contacts ordered by recent conversation activity.
 func GetContacts(currentUsername string) ([]Contact, error) {
 	query := `
 		SELECT u.username, u.is_online
@@ -196,6 +207,7 @@ func GetContacts(currentUsername string) ([]Contact, error) {
 	return contacts, rows.Err()
 }
 
+// GetUserIDByUsername returns a user's numeric ID.
 func GetUserIDByUsername(username string) (int, error) {
 	var userID int
 

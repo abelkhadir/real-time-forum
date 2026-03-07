@@ -22,6 +22,7 @@ type RegisterRequest struct {
 	Password  string `json:"password"`
 }
 
+// Register validates input and creates a new account.
 func Register(w http.ResponseWriter, r *http.Request) {
 	// TODO: test if email and passwords cant be repeated
 	// TODO: sanitize input
@@ -61,6 +62,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "User registered successfully", "success": "true"})
 }
 
+// validateInput checks the registration payload against basic rules.
 func validateInput(req RegisterRequest) error {
 	email := req.Email
 	username := req.Username

@@ -13,6 +13,7 @@ type CommentReq struct {
 	Content string `json:"content"`
 }
 
+// CreateComment stores a new comment for the authenticated user.
 func CreateComment(w http.ResponseWriter, r *http.Request) {
 	var req CommentReq
 

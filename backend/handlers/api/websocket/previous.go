@@ -8,6 +8,7 @@ import (
 	db "real/backend/database"
 )
 
+// PreviousMessagesHandler returns paginated conversation history.
 func PreviousMessagesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

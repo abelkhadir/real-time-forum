@@ -6,6 +6,7 @@ type Notification struct {
 	CreatedAt string `json:"created_at"`
 }
 
+// AddNotification stores an unread notification for a user.
 func AddNotification(username, from, message string) error {
 	_, err := db.Exec(
 		`INSERT INTO notifications (username, from_username, content) VALUES (?, ?, ?)`,
@@ -16,6 +17,7 @@ func AddNotification(username, from, message string) error {
 	return err
 }
 
+// ReadUnreadNotifications returns unread notifications for a user.
 func ReadUnreadNotifications(username string, limit int) ([]Notification, error) {
 	rows, err := db.Query(
 		`SELECT from_username, content, created_at
@@ -42,6 +44,7 @@ func ReadUnreadNotifications(username string, limit int) ([]Notification, error)
 	return notifications, rows.Err()
 }
 
+// MarkNotificationsRead marks all unread notifications for a user as read.
 func MarkNotificationsRead(username string) error {
 	_, err := db.Exec(
 		`UPDATE notifications SET read_at = CURRENT_TIMESTAMP

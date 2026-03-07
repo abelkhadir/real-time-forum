@@ -2,6 +2,7 @@ package db
 
 import "strings"
 
+// InsertPost creates a post and links its categories in one transaction.
 func InsertPost(username, title, content string, categories []string) (int64, error) {
 	tx, err := db.Begin()
 	if err != nil {
@@ -56,6 +57,7 @@ type Post struct {
 	CreatedAt    string
 }
 
+// GetPosts returns a paginated list of posts with categories and comment counts.
 func GetPosts(page, limit int) ([]Post, error) {
 	offset := (page - 1) * limit
 
@@ -100,6 +102,7 @@ func GetPosts(page, limit int) ([]Post, error) {
 	return posts, nil
 }
 
+// GetPost returns one post with its categories and comment count.
 func GetPost(id int) (Post, error) {
 	var p Post
 	var catStr string

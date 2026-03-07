@@ -9,6 +9,7 @@ import (
 	db "real/backend/database"
 )
 
+// GetComments returns all comments for a post.
 func GetComments(w http.ResponseWriter, r *http.Request) {
 	postID, err := strconv.Atoi(r.URL.Query().Get("post_id"))
 	if err != nil || postID < 1 {

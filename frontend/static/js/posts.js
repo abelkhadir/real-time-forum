@@ -1,4 +1,5 @@
 
+// expandPostCreationArea manages the post composer interactions.
 function expandPostCreationArea() {
     const post = document.getElementById("postCreationArea");
     const title = document.getElementById("titleCreationArea");
@@ -63,6 +64,7 @@ function expandPostCreationArea() {
     });
 }
 
+// createPost submits a new post to the backend.
 function createPost(title, content, categories) {
     fetch("/api/posts/create", {
         method: "POST",
@@ -85,6 +87,7 @@ function createPost(title, content, categories) {
     .catch(err => `Login to create post`);
 }
 
+// getPosts fetches the post feed for a page.
 function getPosts(page = 1) {
     fetch(`/api/posts?page=${page}`)
         .then(res => res.json())
@@ -98,6 +101,7 @@ function getPosts(page = 1) {
         .catch(err => console.log(err));
 }
 
+// renderPosts replaces the feed with the provided posts.
 function renderPosts(posts) {
     const container = document.getElementById("posts-container");
     container.innerHTML = "";
@@ -107,6 +111,7 @@ function renderPosts(posts) {
     });
 }
 
+// buildPostCard creates one feed card for a post.
 function buildPostCard(post) {
     const div = document.createElement("div");
     div.className = "post-card";
@@ -141,6 +146,7 @@ function buildPostCard(post) {
     return div;
 }
 
+// addPostToFeed prepends a new post card to the feed.
 function addPostToFeed(post) {
     console.log("Adding new post to feed:", post);
     const container = document.getElementById("posts-container");
@@ -149,6 +155,7 @@ function addPostToFeed(post) {
     container.prepend(card);
 }
 
+// openPost loads one post and switches to the detail view.
 async function openPost(id) {
     try {
         const res = await fetch(`/api/posts/read?id=${id}`);
@@ -165,6 +172,7 @@ async function openPost(id) {
     }
 }
 
+// closePost returns from the detail view to the feed.
 function closePost() {
     document.getElementById("post-view").classList.add("hidden");
     document.getElementById("feed-view").classList.remove("hidden");
@@ -172,10 +180,12 @@ function closePost() {
 
 let currentPostId = null;
 
+// setCurrentPostId stores the currently open post ID.
 function setCurrentPostId(postId) {
     currentPostId = postId;
 }
 
+// renderPostDetail renders the selected post and its comment area.
 function renderPostDetail(post) {
     const container = document.getElementById("post-detail-container");
     currentPostId = post.ID || post.id;
@@ -227,6 +237,7 @@ function renderPostDetail(post) {
     loadComments(currentPostId);
 }
 
+// refreshCurrentPost reloads the currently open post.
 function refreshCurrentPost() {
     if (!currentPostId) return;
 

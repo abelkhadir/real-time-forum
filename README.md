@@ -178,5 +178,3 @@ http://localhost:8080
   * sqlite3
   * bcrypt
   * gofrs/uuid or google/uuid
-
-y

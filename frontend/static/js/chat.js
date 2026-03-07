@@ -1,3 +1,4 @@
+// openChat opens a conversation and loads its recent messages.
 function openChat(username) {
     if (!currentUsername) {
         showToast("red", "login to open chat");
@@ -21,12 +22,14 @@ function openChat(username) {
     document.getElementById('chat-conversation').classList.remove('hidden');
 }
 
+// closeChat returns the sidebar to the contacts list.
 function closeChat() {
     selectedUser = null;
     document.getElementById('chat-conversation').classList.add('hidden');
     document.getElementById('friends-list').classList.remove('hidden');
 }
 
+// toggleMobileSidebar shows or hides the chat sidebar on small screens.
 function toggleMobileSidebar() {
     const sidebar = document.getElementById('right-sidebar');
     if (sidebar.style.display === 'flex') {
@@ -37,6 +40,7 @@ function toggleMobileSidebar() {
     }
 }
 
+// readMessage sends a message when Enter is pressed.
 function readMessage(e) {
     if (e.key === "Enter") {
         e.preventDefault();
@@ -50,6 +54,7 @@ function readMessage(e) {
     }
 }
 
+// sendMessage pushes a chat message through the active WebSocket.
 function sendMessage(msg) {
     if (!selectedUser) {
         showToast("red", "No user selected");
@@ -67,10 +72,12 @@ function sendMessage(msg) {
     }
 }
 
+// displayMessage appends one live message to the current conversation.
 function displayMessage(data) {
     renderMessage(data, { prepend: false, keepScroll: false });
 }
 
+// formatMessageDate formats a stored message timestamp for display.
 function formatMessageDate(value) {
     if (!value) return "";
     const d = new Date(value);
@@ -80,6 +87,7 @@ function formatMessageDate(value) {
     return d.toLocaleString();
 }
 
+// renderMessage inserts one message bubble into the chat view.
 function renderMessage(data, { prepend, keepScroll }) {
     const chatMessagesContainer = document.getElementById('chat-messages-container');
     if (!chatMessagesContainer) return;
@@ -108,6 +116,7 @@ function renderMessage(data, { prepend, keepScroll }) {
     }
 }
 
+// sendMessageFromButton sends the current input value.
 function sendMessageFromButton() {
     const input = document.getElementById('messageInput');
     if (input && input.value.trim()) {
@@ -122,6 +131,7 @@ let messagesLoading = false;
 let messagesHasMore = true;
 let messagesScrollHandler = null;
 
+// initMessagePagination resets paging state and scroll loading.
 function initMessagePagination() {
     messagesOffset = 0;
     messagesLoading = false;
@@ -141,6 +151,7 @@ function initMessagePagination() {
     container.addEventListener("scroll", messagesScrollHandler);
 }
 
+// loadMessages fetches paginated chat history for the selected user.
 function loadMessages(reset) {
     if (!selectedUser || messagesLoading) return;
     messagesLoading = true;
@@ -199,6 +210,7 @@ function loadMessages(reset) {
         });
 }
 
+// throttle limits how often a function can run.
 function throttle(fn, wait) {
     let last = 0;
     let timeout = null;

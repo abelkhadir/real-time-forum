@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-// Return number of posts determined by query, as json
+// GetPostsHandler returns a paginated post feed.
 func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
@@ -37,6 +37,7 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// GetPostHandler returns one post by ID.
 func GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
 

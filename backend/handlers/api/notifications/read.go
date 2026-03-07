@@ -7,6 +7,7 @@ import (
 	db "real/backend/database"
 )
 
+// MarkRead marks the authenticated user's notifications as read.
 func MarkRead(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
