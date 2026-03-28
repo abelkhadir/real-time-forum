@@ -53,3 +53,14 @@ func MarkNotificationsRead(username string) error {
 	)
 	return err
 }
+
+// MarkNotificationsReadFrom marks unread notifications as read for one sender.
+func MarkNotificationsReadFrom(username, from string) error {
+	_, err := db.Exec(
+		`UPDATE notifications SET read_at = CURRENT_TIMESTAMP
+		 WHERE username = ? AND from_username = ? AND read_at IS NULL`,
+		username,
+		from,
+	)
+	return err
+}

@@ -92,7 +92,6 @@ body {
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(5px);
-    /* blur behind popup */
 }
 
 
@@ -130,14 +129,23 @@ select {
 
 .post-box.expanded #titleCreationArea,
 .post-box.expanded .category-row {
+    position: static;
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
 }
 
+.post-box.expanded {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .post-box.expanded #postCreationArea {
     height: 150px;
-    padding-top: 50px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    overflow-y: auto;
 }
 
 #titleCreationArea {
@@ -157,11 +165,12 @@ select {
 
 .category-row {
     position: absolute;
-    margin-left: 3%;
-    margin-bottom: 1%;
+    margin-left: 0;
+    margin-bottom: 0;
     bottom: 6px;
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     opacity: 0;
     pointer-events: none;
@@ -235,6 +244,29 @@ header {
     background: #f9f9f9;
 }
 
+.no-posts {
+    background: var(--bg-card);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.posts-pagination {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.posts-pagination .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .post-header {
     display: flex;
     align-items: center;
@@ -263,6 +295,14 @@ header {
     font-size: 16px;
     margin-bottom: 15px;
     line-height: 1.5;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.post-title {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .post-stats {

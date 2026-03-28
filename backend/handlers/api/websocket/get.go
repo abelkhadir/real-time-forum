@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 
 	db "real/backend/database"
@@ -28,6 +29,8 @@ var (
 	clients   = make(map[string][]*Client)
 	clientsMu sync.RWMutex
 )
+
+const maxMessageLength = 500
 
 // WebSocketsHandler upgrades the request and handles realtime chat events.
 func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
@@ -86,6 +89,11 @@ func WebSocketsHandler(w http.ResponseWriter, r *http.Request) {
 		var msg Message
 		if err := json.Unmarshal(msgBytes, &msg); err != nil {
 			log.Println("Invalid JSON:", err)
+			continue
+		}
+		msg.To = strings.TrimSpace(msg.To)
+		msg.Msg = strings.TrimSpace(msg.Msg)
+		if msg.To == "" || msg.Msg == "" || len(msg.Msg) > maxMessageLength {
 			continue
 		}
 
@@ -159,6 +167,20 @@ func BroadcastPost(post db.Post) {
 			c.Conn.WriteJSON(map[string]interface{}{
 				"type": "UpdatePosts",
 				"post": post,
+			})
+		}
+	}
+}
+
+// BroadcastComment notifies clients that a post received a new comment.
+func BroadcastComment(postID int) {
+	clientsMu.RLock()
+	defer clientsMu.RUnlock()
+	for _, userClients := range clients {
+		for _, c := range userClients {
+			c.Conn.WriteJSON(map[string]interface{}{
+				"type":    "UpdateComments",
+				"post_id": postID,
 			})
 		}
 	}

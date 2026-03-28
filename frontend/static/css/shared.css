@@ -235,3 +235,57 @@ img {
 .notification-item:hover {
   background: #f0f0f0;
 }
+
+
+#unauth-app-shell {
+  min-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+#unauth-app-shell .brand {
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+
+#unauth-app-shell .subtitle {
+  color: var(--text-muted);
+  font-size: 16px;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+#unauth-app-shell .login-link {
+  border: none;
+  background: transparent;
+  color: var(--black);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+#unauth-app-shell .login-link:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+#unauth-app-shell .login-link:active {
+  transform: scale(0.96);
+}
+
+#unauth-app-shell .login-link::after {
+  transition: transform 0.3s ease;
+}
+
+#unauth-app-shell .login-link:hover::after {
+  transform: translateX(4px);
+}

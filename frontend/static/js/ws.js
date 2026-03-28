@@ -6,6 +6,12 @@ const counter = document.querySelector(".notifications-counter");
 let notifications = [];
 let unreadCount = 0;
 
+function formatNotificationText(n) {
+    const preview = n.msg && n.msg.length > 80 ? `${n.msg.slice(0, 77)}...` : (n.msg || "");
+    if (preview) return `${n.from} (${n.count}) • ${preview}`;
+    return `${n.from} (${n.count})`;
+}
+
 // renderNotifications draws the current notification list.
 function renderNotifications() {
     const container = document.getElementById("notifications-container");
@@ -23,7 +29,7 @@ function renderNotifications() {
     notifications.forEach((n) => {
         const div = document.createElement("div");
         div.className = "notification-item";
-        div.textContent = n.text;
+        div.textContent = formatNotificationText(n);
         div.addEventListener("click", () => {
             openChat(n.from);
             const notifMenu = document.getElementById("notif-menu");
@@ -47,11 +53,18 @@ function updateCounter() {
 
 // addNotification adds a new unread notification to the list.
 function addNotification(from, msg) {
-    const preview = msg && msg.length > 80 ? `${msg.slice(0, 77)}...` : (msg || "");
-    const text = preview ? `Message from ${from}: ${preview}` : `Message from ${from}`;
     const notifMenu = document.getElementById("notif-menu");
     const isNotifMenuOpen = notifMenu && !notifMenu.classList.contains("hidden");
-    notifications.unshift({ from, text });
+    const existingIdx = notifications.findIndex((n) => n.from === from);
+    if (existingIdx >= 0) {
+        const existing = notifications[existingIdx];
+        existing.count += 1;
+        existing.msg = msg || existing.msg;
+        notifications.splice(existingIdx, 1);
+        notifications.unshift(existing);
+    } else {
+        notifications.unshift({ from, msg: msg || "", count: 1 });
+    }
     if (notifications.length > 50) notifications.length = 50;
     if (!isNotifMenuOpen) unreadCount += 1;
     updateCounter();
@@ -59,10 +72,19 @@ function addNotification(from, msg) {
 }
 
 // markNotificationsRead clears unread notifications on the server and UI.
-function markNotificationsRead() {
-    fetch("/api/notifications/read", { method: "POST" }).catch(() => {});
-    unreadCount = 0;
+function markNotificationsRead(from = "") {
+    const url = from
+        ? `/api/notifications/read?from=${encodeURIComponent(from)}`
+        : "/api/notifications/read";
+    fetch(url, { method: "POST" }).catch(() => {});
+    if (from) {
+        notifications = notifications.filter((n) => n.from !== from);
+        unreadCount = notifications.reduce((sum, n) => sum + n.count, 0);
+    } else {
+        unreadCount = 0;
+    }
     updateCounter();
+    renderNotifications();
 }
 
 // fetchNotifications loads unread notifications from the backend.
@@ -75,12 +97,19 @@ function fetchNotifications() {
         .then((data) => {
             if (!data || !Array.isArray(data.notifications)) return;
             notifications.length = 0;
+            const grouped = new Map();
             data.notifications.forEach((n) => {
-                const preview = n.msg && n.msg.length > 80 ? `${n.msg.slice(0, 77)}...` : (n.msg || "");
-                const text = preview ? `New message from ${n.from}: ${preview}` : `New message from ${n.from}`;
-                notifications.push({ from: n.from, text });
+                const existing = grouped.get(n.from);
+                if (existing) {
+                    existing.count += 1;
+                } else {
+                    grouped.set(n.from, { from: n.from, msg: n.msg || "", count: 1 });
+                }
             });
-            unreadCount = typeof data.count === "number" ? data.count : notifications.length;
+            notifications.push(...grouped.values());
+            unreadCount = typeof data.count === "number"
+                ? data.count
+                : notifications.reduce((sum, n) => sum + n.count, 0);
             updateCounter();
             renderNotifications();
         })
@@ -101,6 +130,9 @@ function initWebSocket() {
 
             if (isActiveConversation) {
                 displayMessage(data);
+                if (data.from === selectedUser) {
+                    markNotificationsRead(selectedUser);
+                }
             } else {
                 const selfUsername = typeof currentUsername === "string" ? currentUsername : "";
                 const isOwnMessage = selfUsername !== "" && data.from === selfUsername;
@@ -112,8 +144,19 @@ function initWebSocket() {
         }
 
         if (data.type === "UpdatePosts") {
-            if (data.post) {
-                addPostToFeed(data.post);
+            if (typeof getPosts === "function") {
+                getPosts();
+            }
+            return;
+        }
+
+        if (data.type === "UpdateComments") {
+            if (typeof getPosts === "function") {
+                getPosts();
+            }
+            const postView = document.getElementById("post-view");
+            if (postView && !postView.classList.contains("hidden") && typeof refreshCurrentPost === "function") {
+                refreshCurrentPost();
             }
             return;
         }

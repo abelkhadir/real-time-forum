@@ -54,6 +54,16 @@
         </div>
     </header>
 
+    <style>
+    </style>
+
+    <div id="unauth-app-shell">
+        <div class="brand">FORUM.</div>
+        <div class="subtitle">
+            <button type="button" class="login-link" onclick="openLoginPopup()">Login to access.</button>
+        </div>
+    </div>
+
     <div id="app-shell" class="hidden">
         <div class="container">
             <main class="main-content">
@@ -68,9 +78,9 @@
                             </div>
 
                             <div class="post-box">
-                                <input id="titleCreationArea" type="text" placeholder="Choose a title for your post..">
+                                <input id="titleCreationArea" type="text" maxlength="120" placeholder="Choose a title for your post..">
 
-                                <textarea id="postCreationArea" placeholder="What's on your mind?"></textarea>
+                                <textarea id="postCreationArea" maxlength="1000" placeholder="What's on your mind?"></textarea>
 
                                 <div class="category-row">
                                     <button class="cat" data-cat="news">News</button>
@@ -83,6 +93,11 @@
                     </div>
 
                     <div id="posts-container"></div>
+                    <div id="posts-pagination" class="posts-pagination">
+                        <button id="posts-prev" class="btn" type="button">Previous</button>
+                        <span id="posts-page-indicator">Page 1</span>
+                        <button id="posts-next" class="btn" type="button">Next</button>
+                    </div>
                 </div>
 
                 <div id="post-view" class="post-detail-view hidden">
@@ -114,7 +129,7 @@
                     <div class="chat-messages" id="chat-messages-container"></div>
 
                     <div class="chat-input">
-                        <input id="messageInput" onkeydown="readMessage(event)" type="text" placeholder="Message...">
+                        <input id="messageInput" onkeydown="readMessage(event)" type="text" maxlength="500" placeholder="Message...">
                         <button class="btn btn-primary" onclick="sendMessageFromButton()">Send</button>
                     </div>
 
@@ -211,7 +226,6 @@
                         <option value="" disabled selected>Gender</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
-                        <option value="other">Other</option>
                     </select>
                     <input id="register-first-name" type="text" placeholder="First Name" required>
                     <input id="register-last-name" type="text" placeholder="Last Name" required>

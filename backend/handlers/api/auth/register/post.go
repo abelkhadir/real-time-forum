@@ -24,8 +24,6 @@ type RegisterRequest struct {
 
 // Register validates input and creates a new account.
 func Register(w http.ResponseWriter, r *http.Request) {
-	// TODO: test if email and passwords cant be repeated
-	// TODO: sanitize input
 
 	var req RegisterRequest
 	w.Header().Set("Content-Type", "application/json")
@@ -107,16 +105,26 @@ func validateInput(req RegisterRequest) error {
 		return fmt.Errorf("age must be between 1 and 130")
 	}
 
-	if gender != "male" && gender != "female" && gender != "other" {
-		return fmt.Errorf("gender must be male, female or other")
+	if gender != "male" && gender != "female" {
+		return fmt.Errorf("gender must be male or female")
 	}
 
-	if len(firstName) < 1 || len(firstName) > 50 {
+	if len(firstName) < 1 || len(firstName) > 20 {
 		return fmt.Errorf("first name must be between 1 and 50 characters")
 	}
+	if matched, err := regexp.MatchString(`^[A-Za-z]+$`, firstName); err != nil {
+		return fmt.Errorf("interserver server error")
+	} else if !matched {
+		return fmt.Errorf("first name must contain letters only")
+	}
 
-	if len(lastName) < 1 || len(lastName) > 50 {
+	if len(lastName) < 1 || len(lastName) > 20 {
 		return fmt.Errorf("last name must be between 1 and 50 characters")
+	}
+	if matched, err := regexp.MatchString(`^[A-Za-z]+$`, lastName); err != nil {
+		return fmt.Errorf("interserver server error")
+	} else if !matched {
+		return fmt.Errorf("last name must contain letters only")
 	}
 
 	if len(password) < 8 || len(password) > 64 {

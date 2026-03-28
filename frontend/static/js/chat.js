@@ -20,6 +20,9 @@ function openChat(username) {
     // Switch Sidebar Views
     document.getElementById('friends-list').classList.add('hidden');
     document.getElementById('chat-conversation').classList.remove('hidden');
+    if (typeof markNotificationsRead === "function") {
+        markNotificationsRead(username);
+    }
 }
 
 // closeChat returns the sidebar to the contacts list.

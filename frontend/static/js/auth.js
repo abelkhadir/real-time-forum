@@ -11,8 +11,6 @@ function notify(color, message) {
         console.error(message);
         return;
     }
-
-    console.log(message);
 }
 
 // openLoginPopup shows the login modal and hides the register modal.

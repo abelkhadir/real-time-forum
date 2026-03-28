@@ -1,4 +1,49 @@
 
+const POSTS_PAGE_SIZE = 10;
+let currentPostsPage = 1;
+let postsHasMore = false;
+
+function bindPostsPagination() {
+    const prev = document.getElementById("posts-prev");
+    const next = document.getElementById("posts-next");
+
+    if (prev && prev.dataset.bound !== "true") {
+        prev.addEventListener("click", () => {
+            if (currentPostsPage > 1) {
+                getPosts(currentPostsPage - 1);
+            }
+        });
+        prev.dataset.bound = "true";
+    }
+
+    if (next && next.dataset.bound !== "true") {
+        next.addEventListener("click", () => {
+            if (postsHasMore) {
+                getPosts(currentPostsPage + 1);
+            }
+        });
+        next.dataset.bound = "true";
+    }
+
+    updatePostsPaginationControls();
+}
+
+function updatePostsPaginationControls() {
+    const prev = document.getElementById("posts-prev");
+    const next = document.getElementById("posts-next");
+    const indicator = document.getElementById("posts-page-indicator");
+
+    if (indicator) {
+        indicator.textContent = `Page ${currentPostsPage}`;
+    }
+    if (prev) {
+        prev.disabled = currentPostsPage <= 1;
+    }
+    if (next) {
+        next.disabled = !postsHasMore;
+    }
+}
+
 // expandPostCreationArea manages the post composer interactions.
 function expandPostCreationArea() {
     const post = document.getElementById("postCreationArea");
@@ -39,7 +84,10 @@ function expandPostCreationArea() {
         const selectedCats = [...document.querySelectorAll(".cat.active")]
             .map(b => b.dataset.cat);
 
-        if (!content) return;
+        if (!titleText || !content) {
+            showToast("red", "Title and content are required");
+            return;
+        }
         if (selectedCats.length === 0) {
             showToast("red", "Select at least one category");
             return;
@@ -79,7 +127,7 @@ function createPost(title, content, categories) {
         .then(data => {
             if (data.success) {
                 showToast("green", "Post Created successfully");
-                getPosts()
+                getPosts(1);
             } else {
                 showToast("red", `Couldnt create post: ${data.error}`);
             }
@@ -88,12 +136,19 @@ function createPost(title, content, categories) {
 }
 
 // getPosts fetches the post feed for a page.
-function getPosts(page = 1) {
-    fetch(`/api/posts?page=${page}`)
+function getPosts(page = currentPostsPage) {
+    fetch(`/api/posts?page=${page}&limit=${POSTS_PAGE_SIZE}`)
         .then(res => res.json())
         .then(data => {
             if (data.success) {
+                if (page > 1 && Array.isArray(data.posts) && data.posts.length === 0) {
+                    getPosts(page - 1);
+                    return;
+                }
+                currentPostsPage = page;
+                postsHasMore = Array.isArray(data.posts) && data.posts.length === POSTS_PAGE_SIZE;
                 renderPosts(data.posts);
+                updatePostsPaginationControls();
             } else {
                 showToast("red", "couldn't load posts");
             }
@@ -105,6 +160,10 @@ function getPosts(page = 1) {
 function renderPosts(posts) {
     const container = document.getElementById("posts-container");
     container.innerHTML = "";
+    if (!posts || posts.length === 0) {
+        container.innerHTML = '<div class="no-posts">No posts yet</div>';
+        return;
+    }
 
     posts.forEach(post => {
         container.appendChild(buildPostCard(post));
@@ -148,7 +207,6 @@ function buildPostCard(post) {
 
 // addPostToFeed prepends a new post card to the feed.
 function addPostToFeed(post) {
-    console.log("Adding new post to feed:", post);
     const container = document.getElementById("posts-container");
     if (!container) return;
     const card = buildPostCard(post);
@@ -189,7 +247,6 @@ function setCurrentPostId(postId) {
 function renderPostDetail(post) {
     const container = document.getElementById("post-detail-container");
     currentPostId = post.ID || post.id;
-    console.log(post);
     const comments = post.Comments_num || post.comments_count || 0;
     const cats = post.Categories || [];
     const safeUsername = escapeHTML(post.Username);
@@ -213,6 +270,7 @@ function renderPostDetail(post) {
 
     <h2 class="post-title">${safeTitle}</h2>
 
+    <br></br>
     <div class="post-body" style="font-size: 18px;">
       ${safeContent}
     </div>
@@ -227,7 +285,7 @@ function renderPostDetail(post) {
       <br>
       <div class="comment-input-area">
         <div class="avatar" style="width: 30px; height: 30px;"><img src="/static/images/avatar-white.png" style="width:100%"></div>
-        <input type="text" id="commentInput" placeholder="Write a comment...">
+        <input type="text" id="commentInput" maxlength="500" placeholder="Write a comment..." onkeydown="if(event.key==='Enter'){event.preventDefault();submitComment();}">
         <button class="btn btn-primary" style="padding: 0 15px;" onclick="submitComment()">➤</button>
       </div>
       <div id="comments-container" style="margin-top: 20px;"></div>

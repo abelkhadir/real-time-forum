@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	db "real/backend/database"
 	ws "real/backend/handlers/api/websocket"
@@ -22,6 +23,11 @@ var allowedCategories = map[string]struct{}{
 	"gaming": {},
 }
 
+const (
+	maxPostTitleLength   = 120
+	maxPostContentLength = 1000
+)
+
 // CreatePost stores a new post for the authenticated user.
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 	// choose valid category, title + content non empty
@@ -31,6 +37,23 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid JSON payload"})
+		return
+	}
+	req.PostTitle = strings.TrimSpace(req.PostTitle)
+	req.PostContent = strings.TrimSpace(req.PostContent)
+	if req.PostTitle == "" || req.PostContent == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Title and content are required"})
+		return
+	}
+	if len(req.PostTitle) > maxPostTitleLength {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Max title lenght is 120"})
+		return
+	}
+	if len(req.PostContent) > maxPostContentLength {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Max content lenght is 1000"})
 		return
 	}
 

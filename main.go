@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path"
+	"strings"
 
 	db "real/backend/database"
 	"real/backend/handlers/api/auth/login"
 	"real/backend/handlers/api/auth/register"
 	"real/backend/handlers/api/auth/user"
 	"real/backend/handlers/api/comments"
+	error_handler "real/backend/handlers/api/error"
 	"real/backend/handlers/api/home"
 	"real/backend/handlers/api/notifications"
 	"real/backend/handlers/api/posts"
@@ -24,7 +27,7 @@ func main() {
 		return
 	}
 
-	err = db.Migrate()
+	err = db.CreateTables()
 	if err != nil {
 		fmt.Println("Failed to migrate database:", err)
 		return
@@ -54,7 +57,17 @@ func main() {
 
 	// frontend (HTML, CSS, JS)
 	fs := http.FileServer(http.Dir("./frontend/static"))
-	mux.Handle("/static/", login.NoCache(http.StripPrefix("/static/", fs)))
+	staticHandler := http.StripPrefix("/static/", fs)
+
+	mux.Handle("/static/", login.NoCache(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		staticPath := strings.TrimPrefix(path.Clean(r.URL.Path), "/static")
+		if staticPath == "" || path.Ext(staticPath) == "" {
+			error_handler.ErrorPage(w, "This page does not exist, or it may have been moved.", http.StatusForbidden)
+			return
+		}
+
+		staticHandler.ServeHTTP(w, r)
+	})))
 
 	fmt.Println("Server started at http://localhost:8080")
 	log.Panic(http.ListenAndServe(":8080", mux))

@@ -20,7 +20,7 @@ func InitDB() error {
 }
 
 // Migrate creates the required tables and backfills new user columns.
-func Migrate() error {
+func CreateTables() error {
 	schema := `
 
 	CREATE TABLE IF NOT EXISTS users (
@@ -95,20 +95,6 @@ func Migrate() error {
 
 	`
 	if _, err := db.Exec(schema); err != nil {
-		return err
-	}
-
-	// Keep existing local DBs compatible with the newer required user fields.
-	if err := addColumnIfMissing(`ALTER TABLE users ADD COLUMN age INTEGER NOT NULL DEFAULT 18`); err != nil {
-		return err
-	}
-	if err := addColumnIfMissing(`ALTER TABLE users ADD COLUMN gender TEXT NOT NULL DEFAULT 'other'`); err != nil {
-		return err
-	}
-	if err := addColumnIfMissing(`ALTER TABLE users ADD COLUMN first_name TEXT NOT NULL DEFAULT ''`); err != nil {
-		return err
-	}
-	if err := addColumnIfMissing(`ALTER TABLE users ADD COLUMN last_name TEXT NOT NULL DEFAULT ''`); err != nil {
 		return err
 	}
 

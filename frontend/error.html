@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error | FORUM.</title>
+    <link rel="stylesheet" href="/static/css/error.css">
+</head>
+
+<body>
+    <main class="error-card">
+        <div class="error-top">
+            <a href="/" class="brand">FORUM.</a>
+            <div id="error-chip" class="chip">Error {{.ErrorStatus}}</div>
+        </div>
+
+        <section class="error-body">
+            <div>
+                <h1 id="error-code">{{.ErrorStatus}}</h1>
+                <p id="error-message">{{.ErrorMessage}}</p>
+                <a class="home-link" href="/">Go to homepage</a>
+            </div>
+
+            <svg class="art" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="110" cy="110" r="104" fill="#F0F2F5" stroke="#DDD" stroke-width="2" />
+                <circle cx="110" cy="110" r="79" fill="#FFFFFF" stroke="#000000" stroke-width="6" />
+                <circle cx="80" cy="95" r="9" fill="#000000" />
+                <circle cx="140" cy="95" r="9" fill="#000000" />
+                <path d="M70 140C80 151 92 157 110 157C128 157 140 151 150 140" stroke="#000000" stroke-width="6"
+                    stroke-linecap="round" />
+                <path d="M62 66L77 52" stroke="#1877F2" stroke-width="6" stroke-linecap="round" />
+                <path d="M143 52L158 66" stroke="#1877F2" stroke-width="6" stroke-linecap="round" />
+                <circle cx="63" cy="67" r="5" fill="#1877F2" />
+                <circle cx="157" cy="67" r="5" fill="#1877F2" />
+            </svg>
+        </section>
+    </main>
+</body>
+
+</html>

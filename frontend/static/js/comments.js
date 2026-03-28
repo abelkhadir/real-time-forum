@@ -90,7 +90,7 @@ function renderComments(comments) {
         <span style="font-size: 11px; color: #888;">${new Date(comment.created_at).toLocaleString()}</span>
       </div>
 
-      <div style="margin-bottom: 10px; font-size: 14px; line-height: 1.4;">${escapeHTML(comment.content)}</div>
+      <div style="margin-bottom: 10px; font-size: 14px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word;">${escapeHTML(comment.content)}</div>
 
       <div style="display: flex; gap: 10px; align-items: center;">
         

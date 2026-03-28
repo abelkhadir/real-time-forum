@@ -16,6 +16,9 @@ async function initApp() {
 
     // Setup post creation UI
     expandPostCreationArea();
+    if (typeof bindPostsPagination === "function") {
+        bindPostsPagination();
+    }
 
     // Load initial posts
     getPosts(1);

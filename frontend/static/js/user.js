@@ -7,6 +7,7 @@ function setAuthenticatedState(isAuthenticated) {
     const appShell = document.getElementById("app-shell");
     const authButtons = document.getElementById("auth-btns");
     const profileButtons = document.getElementById("unauth-btns");
+    const unauthAppShell = document.getElementById("unauth-app-shell");
 
     if (appShell) {
         appShell.classList.toggle("hidden", !isAuthenticated);
@@ -20,10 +21,12 @@ function setAuthenticatedState(isAuthenticated) {
         profileButtons.classList.toggle("hidden", !isAuthenticated);
     }
 
+    if (unauthAppShell) {
+        unauthAppShell.classList.toggle("hidden", isAuthenticated);
+    }
+
     if (isAuthenticated) {
         closePopup();
-    } else {
-        openLoginPopup();
     }
 }
 
@@ -98,6 +101,17 @@ function loadContacts(contacts, wsUsername = "") {
 
 // loadUser fetches the current user and updates the UI state.
 async function loadUser() {
+    const hasCookie = document.cookie
+        .split("; ")
+        .some((row) => row.startsWith("session_token="));
+
+    if (!hasCookie) {
+        currentUsername = "";
+        document.getElementById("logout").classList.add("hidden");
+        setAuthenticatedState(false);
+        return false;
+    }
+
     try {
         const res = await fetch("/api/me");
         if (!res.ok) return false;

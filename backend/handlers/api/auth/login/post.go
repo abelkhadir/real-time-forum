@@ -19,6 +19,7 @@ type LoginRequest struct {
 
 // Login authenticates a user and issues a session cookie.
 func Login(w http.ResponseWriter, r *http.Request) {
+
 	w.Header().Set("Content-Type", "application/json")
 
 	var req LoginRequest

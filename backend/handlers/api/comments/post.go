@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	db "real/backend/database"
+	ws "real/backend/handlers/api/websocket"
 )
 
 type CommentReq struct {
@@ -23,10 +25,16 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid JSON payload"})
 		return
 	}
+	req.Content = strings.TrimSpace(req.Content)
 
 	if req.Content == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Comment content cannot be empty"})
+		return
+	}
+	if len(req.Content) > 500 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Max comment length is 500"})
 		return
 	}
 
@@ -62,6 +70,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	ws.BroadcastComment(req.PostID)
 
 	json.NewEncoder(w).Encode(map[string]any{
 		"success": true,

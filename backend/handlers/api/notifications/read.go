@@ -21,7 +21,13 @@ func MarkRead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.MarkNotificationsRead(username); err != nil {
+	from := r.URL.Query().Get("from")
+	if from != "" {
+		if err := db.MarkNotificationsReadFrom(username, from); err != nil {
+			http.Error(w, "Could not update notifications", http.StatusInternalServerError)
+			return
+		}
+	} else if err := db.MarkNotificationsRead(username); err != nil {
 		http.Error(w, "Could not update notifications", http.StatusInternalServerError)
 		return
 	}
